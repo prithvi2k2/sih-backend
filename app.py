@@ -1,5 +1,4 @@
 from flask import Flask
-from routes import  test, authenticate
 from database import mongo
 from dotenv import load_dotenv
 import os
@@ -18,7 +17,8 @@ def create_app():
     except Exception as ex:
         print('Can not connect to DB=>'+str(ex))
 
-
+    # Import blueprints
+    from routes import  test, authenticate
     # Register Blueprints
     app.register_blueprint(test.test)
     app.register_blueprint(authenticate.user)
