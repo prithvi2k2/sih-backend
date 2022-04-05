@@ -1,15 +1,25 @@
 
 from functools import wraps
 import mimetypes
-from tkinter.messagebox import NO
-from flask import Blueprint, request, current_app, make_response, jsonify
+import enum
+from operator import mod
 import os
 import uuid
-from routes import client
 import json
+import jwt
 
-from matplotlib.font_manager import json_dump
+from ML_workspace import model
+from routes import client
 from file_server import server
+from flask import Blueprint, request, current_app, make_response, jsonify
+
+
+class STATUS(enum.Enum):
+    insufficient = 1
+    Unassigned = 2
+    Inprogress = 3
+    Resolved = 4
+    Duplicate = 5
 
 
 file = Blueprint('file', __name__)
@@ -33,8 +43,8 @@ def token_required(f):
         try:
             data = jwt.decode(
                 token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
-            db = client['research']
-            collection = db["research_auth"]
+            db = client['crimes']
+            collection = db["crimes_auth"]
             current_user = collection.find_one({"_id": data["public_id"]})
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
@@ -69,7 +79,9 @@ def API_required(f):
 
 
 @file.route("/upload_Data",  methods=['POST'])
-def live():
+@token_required
+@API_required
+def live(current_user):
     """
     Format of data intake
 
@@ -79,6 +91,7 @@ def live():
         ofenders : str names,
         location : str loc,
         time : object Datetime()
+        classified_ByUser : str crime_type
     }
 
     file = {
@@ -90,11 +103,16 @@ def live():
     }
     """
     try:
-        crime_id = uuid.uuid4()
+        crime_id = str(uuid.uuid4())
 
         payload = dict(request.files)
         data = json.load(payload["data"])
         del payload["data"]
+        desc, victims, ofenders, location, time, classified_ByUser = data.get("desc", None), data.get(
+            "victims", None), data.get("ofenders", None), data.get("location", None), data.get("time", None), data.get("classified_ByUser", None)
+        # print(desc, victims, ofenders, location, time)
+        if not desc or not location or not time:
+            return make_response(jsonify(error="No Data payload!!")), 401
 
         files = []
         for v in payload.values():
@@ -104,11 +122,6 @@ def live():
             filename = save_file.save_file(v)
             if filename:
                 files.append([filename, file_type])
-
-        desc, victims, ofenders, location, time = data.get("desc", None), data.get(
-            "victims", None), data.get("ofenders", None), data.get("location", None), data.get("time", None)
-        print(desc, victims, ofenders, location, time)
-
         crime_obj = {
             "_id": crime_id,
             "desc": desc,
@@ -118,14 +131,48 @@ def live():
             "time": time,
             "crime_files": files,
             "crime_score": None,
-            "classification": None
+            "classified_ByUser": classified_ByUser,
+            "classified_model": None,
+            "faces_bymodel": [],
+            "Status": "Unassigned",
+            "wallet_addr": current_user["wallet_addr"],
+            "authority_assigned": None
         }
 
         db = client['crimes']
         collection = db["crimes"]
         collection.insert_one(crime_obj)
         # print(files)
-        return make_response(jsonify(uploaded="sucess")), 200
+        model.Model(crime_obj=crime_obj)
+
+        current_user["case_ids"].append(crime_id)
+        db = client['crimes']
+        collection = db["crimes_auth"]
+        collection.update_one({"_id": current_user["_id"]}, {
+            "$set": {"case_ids": current_user["case_ids"]}})
+        return make_response(jsonify(uploaded="sucess", user_cases=current_user["case_ids"])), 200
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(uploaded="fail", file_id=None, error=e)), 403
+
+
+@file.route("/Get_CaseInfo",  methods=['POST'])
+@token_required
+@API_required
+def get_case(current_user):
+    try:
+        data = dict(request.json)
+        case_id = data.get("case_id", None)
+
+        db = client['crimes']
+        collection = db["crimes"]
+        case_info = collection.find_one({"_id": case_id})
+        if not case_info:
+            return make_response(jsonify(case_found=False, case_info=None))
+        del case_info['wallet_addr']
+
+        return make_response(jsonify(case_found=True, case_info=case_info)), 200
+
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(uploaded="fail", file_id=None, error=e)), 403
