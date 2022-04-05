@@ -1,4 +1,3 @@
-
 from functools import wraps
 import mimetypes
 import enum
@@ -8,9 +7,10 @@ import uuid
 import json
 import jwt
 
+from Logic_objects import location as loc
 from ML_workspace import model
-from routes import client
-from file_server import server
+from routes.USER_ROUTES import client
+from Logic_objects import file_server
 from flask import Blueprint, request, current_app, make_response, jsonify
 
 
@@ -102,6 +102,7 @@ def live(current_user):
           *         *
     }
     """
+
     try:
         crime_id = str(uuid.uuid4())
 
@@ -118,16 +119,26 @@ def live(current_user):
         for v in payload.values():
             file_type = mimetypes.guess_type(v.filename)[0].split("/")[0]
             file = v
-            save_file = server.File_server(file_type)
+            save_file = file_server.File_server(file_type)
             filename = save_file.save_file(v)
             if filename:
                 files.append([filename, file_type])
+        location = loc.Location(location)
+        print(location.__repr__(),  "\n\n")
+        if not location.__repr__():
+            return make_response(jsonify(error="Cannot find the location specifies!!"))
+
+        # finding nearest polices station
+        collection = client["crimes"]["Authority_auth"]
+        authority_assigned = collection.find(
+            {"location": {"$near": location.__repr__()}}).limit(1)
+        print(authority_assigned[0]["_id"])
         crime_obj = {
             "_id": crime_id,
             "desc": desc,
             "victims": victims,
             "ofenders": ofenders,
-            "location": location,
+            "location": None,
             "time": time,
             "crime_files": files,
             "crime_score": None,
@@ -136,7 +147,7 @@ def live(current_user):
             "faces_bymodel": [],
             "Status": "Unassigned",
             "wallet_addr": current_user["wallet_addr"],
-            "authority_assigned": None
+            "authority_assigned": authority_assigned[0]["_id"]
         }
 
         db = client['crimes']

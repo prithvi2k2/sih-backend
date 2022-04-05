@@ -6,7 +6,7 @@ import jwt
 import hashlib
 from functools import wraps
 from database import mongo
-from routes import app, client
+from routes.USER_ROUTES import client
 
 from datetime import datetime, timedelta
 from flask import Blueprint, Flask, request, jsonify, make_response, current_app

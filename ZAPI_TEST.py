@@ -22,7 +22,7 @@ body = {
     "victims": "wdef",
     "time": str(datetime.now()),
     "classified_ByUser": "titan_attack",
-    "location": "here"
+    "location": "Saidabad"
 
 
 }
@@ -46,7 +46,9 @@ files = [
 ]
 
 #json=body ,
+police = ['Begumpet', 'Bowenpally', 'Bollaram', 'Trimulgherry', 'Sulthan_Bazar', 'Chaderghat', 'Afzalgunj', 'Kachiguda', 'Nallakunta', 'Malakpet', 'Saidabad', 'Amberpet', 'Abids', 'Narayanguda', 'Begum_Bazar', 'Gandhinagar', 'Musheerabad', 'Chikkadpally', 'Nampally', 'Ramgopalpet', 'Saifabad', 'Banjara_Hills', 'Jubilee_Hills', 'Panjagutta', 'SR_Nagar', 'Asifnagar', 'Humayunnagar', 'Lunger_House', 'Golconda', 'Tappachabutra',
+          'Shahinayathgunj', 'Habeebnagar', 'Kulsumpura', 'Mangalhat', 'Gopalapuram', 'Tukaramgate', 'Lalaguda', 'Chilakalguda', 'Mahankali', 'Marredupally', 'Karkhana', 'Charminar', 'Bahadurpura', 'Kamatipura', 'Hussaini_Alam', 'Kalapattar', 'Mirchowk', 'Dabeerpura', 'Moghalpura', 'Rein_Bazar', 'Falaknuma', 'Chandrayangutta', 'Shalibanda', 'Chatrinaka', 'Kanchanbagah', 'Bhavani_Nagar', 'Madannapet', 'Santoshnagar']
 
-resp = requests.post("http://127.0.0.1:5000/Get_CaseInfo", json={"case_id": 'e50c1c86-f7be-4163-90f2-530f48110249'},
-                     headers=header)
-print(resp.text, resp.status_code, sep="\n")
+# for i in police:
+resp = requests.post("http://127.0.0.1:5000/upload_Data",
+                     headers=header, files=files)
