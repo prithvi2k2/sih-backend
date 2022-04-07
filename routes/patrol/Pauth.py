@@ -1,4 +1,5 @@
 import uuid
+from argon2 import PasswordHasher
 import jwt
 from functools import wraps
 from config import db
@@ -6,7 +7,6 @@ import config
 from Logic_objects import location as loc
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, make_response
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
 patrol = Blueprint('patrol', __name__)
@@ -29,11 +29,11 @@ def token_required(f):
         try:
             data = jwt.decode(
                 token, config.SECRET_KEY, algorithms=["HS256"])
-            current_user = db.users.find_one({"_id": data["public_id"]})
+            current_user = db.patrol.find_one({"_id": data["public_id"]})
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             return make_response(jsonify({
-                'message': 'unable to find user'
+                'message': 'unable to find patrol authority'
             })), 401
 
         # returns the current logged in users contex to the routes
@@ -57,7 +57,7 @@ def API_required(f):
                 'message': 'api_key is invalid !!'
             })), 401
 
-        # returns the current logged in users contex to the routes
+        # returns the current logged in users context to the routes
         return f(*args, **kwargs)
     return decorated
 
@@ -74,14 +74,14 @@ def Special_permissionAuth(f):
     return decorated
 
 
-@patrol.route("/AuthoritySignup",  methods=['POST'])
+@patrol.route("/signup",  methods=['POST'])
 @API_required
-def AuthoritySignup():
+def signup():
     try:
-        data = dict(request.json)
-        AuthorityID = data.get("AuthorityID", None)
-        location = data.get("location", None)
-        pw = data.get("pw", None)
+        req = dict(request.json)
+        AuthorityID = req.get("AuthorityID")
+        location = req.get("location")
+        pw = req.get("password")
         if not AuthorityID or not pw or not location:
             return make_response(jsonify(error="No Data payload!!"), 401)
 
@@ -91,7 +91,7 @@ def AuthoritySignup():
         auth_obj = {
             "_id": str(uuid.uuid4()),
             "name": AuthorityID,
-            "password": generate_password_hash(pw),
+            "password": Phash(pw),
             "location": location.__repr__(),
             "case_ids": []
         }
@@ -99,7 +99,7 @@ def AuthoritySignup():
         user_obj = db.patrol.find_one({"name": AuthorityID})
 
         if user_obj != None:
-            return make_response(jsonify(user_exits=True, token=None)), 401
+            return make_response(jsonify(user_exists=True, token=None), 401)
 
         db.patrol.insert_one(auth_obj)
         # jwt generation
@@ -107,38 +107,53 @@ def AuthoritySignup():
             'public_id': auth_obj["_id"],
             'exp': datetime.utcnow() + timedelta(weeks=2)
         }, config.SECRET_KEY)
-        return make_response(jsonify(user_exits=False, token=token), 201)
+        return make_response(jsonify(user_exists=False, token=token), 201)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
-        return make_response(jsonify(error=e)), 401
+        return make_response(jsonify(error=e), 401)
 
 
-@patrol.route("/AuthorityLogin", methods=['POST'])
+@patrol.route("/login", methods=['POST'])
 @API_required
-def AuthorityLogin():
+def login():
     try:
-        data = dict(request.json)
-        AuthorityID = data.get("AuthorityID", None)
-        pw = data.get("pw", None)
+        req = dict(request.json)
+        AuthorityID = req.get("AuthorityID")
+        pw = req.get("password")
 
         if not AuthorityID or not pw:
-            return make_response(jsonify(error="No Data payload!!")), 401
+            return make_response(jsonify(error="No Data payload!!"), 401)
 
         user_obj = db.patrol.find_one({"name": AuthorityID})
 
         if user_obj == None:
             print("lmaoooee")
-            return make_response(jsonify(user_exits=False, login=False, token=None)), 401
+            return make_response(jsonify(user_exists=False, login=False, token=None), 401)
 
-        if not check_password_hash(user_obj["password"], pw):
+        if not verifyPass(user_obj["password"], pw):
             print("loll")
-            return make_response(jsonify(login=False, user_exits=True,  token=None), 201)
+            return make_response(jsonify(login=False, user_exists=True,  token=None), 201)
 
         token = jwt.encode({
             'public_id': user_obj["_id"],
             'exp': datetime.utcnow() + timedelta(weeks=2)
         }, config.SECRET_KEY)
-        return make_response(jsonify(login=True, user_exits=True,  token=token), 201)
+        return make_response(jsonify(login=True, user_exists=True,  token=token), 201)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
-        return make_response(jsonify(error=e)), 401
+        return make_response(jsonify(error=e), 401)
+
+
+
+# Argon2 for hashing passwords using salt
+ph = PasswordHasher()
+
+def Phash(password):
+    return ph.hash(password)
+
+
+def verifyPass(hash, password):
+    try:
+        return ph.verify(hash, password)
+    except:
+        return False

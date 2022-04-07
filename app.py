@@ -18,13 +18,13 @@ def create_app():
 
     # Import blueprints
     from routes import test
-    from routes.users import authenticate, crime_server
-    from routes.patrol import patrolAuth
+    from routes.users import Uauth, reports
+    from routes.patrol import Pauth
     # Register Blueprints
     app.register_blueprint(test.test)
-    app.register_blueprint(authenticate.user)
-    app.register_blueprint(crime_server.file)
-    app.register_blueprint(patrolAuth.patrol)
+    app.register_blueprint(Uauth.user)
+    app.register_blueprint(reports.file)
+    app.register_blueprint(Pauth.patrol, url_prefix='/patrol')
 
     return app
 

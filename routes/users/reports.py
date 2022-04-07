@@ -1,3 +1,7 @@
+""""
+Handles reports/cases uploaded by citizens
+
+"""
 import mimetypes
 import enum
 import uuid
