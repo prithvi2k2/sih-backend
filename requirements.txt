@@ -1,3 +1,7 @@
+argon2==0.1.10
 Flask==2.1.1
-Flask_PyMongo==2.3.0
+geopy==2.2.0
+PyJWT==2.3.0
+pymongo==4.1.0
 python-dotenv==0.20.0
+requests==2.27.1
