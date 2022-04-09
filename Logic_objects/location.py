@@ -25,5 +25,5 @@ class Location:
 
     def __repr__(self):
         if self.location:
-            return [self.latitude, self.longitude]
+            return [self.longitude, self.latitude]
         return False

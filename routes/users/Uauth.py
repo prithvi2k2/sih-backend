@@ -17,6 +17,7 @@ user = Blueprint('user', __name__)
 def signup():
     try:
         req = dict(request.json)
+        print(req)
         user = req.get("user")
         password = req.get("password")
         if not user or not password:
@@ -39,7 +40,10 @@ def signup():
         }
         db.users.insert_one(user_obj)
 
-        return make_response(jsonify(user_exists=False, message="User registered"), 201)
+        resp = make_response(
+            jsonify(user_exists=False, message="User registered"), 201)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        return resp
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)

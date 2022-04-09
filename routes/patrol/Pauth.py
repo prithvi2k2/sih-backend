@@ -1,80 +1,23 @@
+
 import uuid
 from argon2 import PasswordHasher
 import jwt
-from functools import wraps
 from config import db
 import config
 from Logic_objects import location as loc
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, make_response
-
-
+from routes.patrol import Special_permissionAuth, API_required, token_required
 patrol = Blueprint('patrol', __name__)
-
+# sock = Sock(patrol)
+# socketio = SocketIO(app)
 
 # inits
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        print("my boii")
-
-        # jwt is passed in the request header
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-        if not token:
-            return make_response(jsonify({'message': 'Token is missing !!'})), 401
-
-        # jwt validation
-        try:
-            data = jwt.decode(
-                token, config.SECRET_KEY, algorithms=["HS256"])
-            current_user = db.patrol.find_one({"_id": data["public_id"]})
-        except Exception as e:
-            print(e,  e.__traceback__.tb_lineno)
-            return make_response(jsonify({
-                'message': 'unable to find patrol authority'
-            })), 401
-
-        # returns the current logged in users contex to the routes
-        return f(current_user, *args, **kwargs)
-    return decorated
-
-
-def API_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        # jwt is passed in the request header
-        if 'X-API-Key' in request.headers:
-            api_key = request.headers['X-API-Key']
-        if not api_key:
-            return make_response(jsonify({'message': 'APIKEY is missing !!'})), 511
-        if str(api_key) == config.API_KEY:
-            # print("thank god")
-            pass
-        else:
-            return make_response(jsonify({
-                'message': 'api_key is invalid !!'
-            })), 401
-
-        # returns the current logged in users context to the routes
-        return f(*args, **kwargs)
-    return decorated
-
-
-def Special_permissionAuth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        '''
-        stuff here is validated and functions using this 
-        decorater are not accessed bby anyone unless admin authority 
-        basically to register all police ids
-        '''
-        return f(*args, **kwargs)
-    return decorated
+# print("\n\n\n\n", sock_server, "\n\n\n\n")
 
 
 @patrol.route("/signup",  methods=['POST'])
+@Special_permissionAuth
 @API_required
 def signup():
     try:
@@ -107,6 +50,7 @@ def signup():
             'public_id': auth_obj["_id"],
             'exp': datetime.utcnow() + timedelta(weeks=2)
         }, config.SECRET_KEY)
+
         return make_response(jsonify(user_exists=False, token=token), 201)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
@@ -119,9 +63,10 @@ def login():
     try:
         req = dict(request.json)
         AuthorityID = req.get("AuthorityID")
+        location = req.get("location")
         pw = req.get("password")
 
-        if not AuthorityID or not pw:
+        if not AuthorityID or not pw or not location:
             return make_response(jsonify(error="No Data payload!!"), 401)
 
         user_obj = db.patrol.find_one({"name": AuthorityID})
@@ -134,19 +79,49 @@ def login():
             print("loll")
             return make_response(jsonify(login=False, user_exists=True,  token=None), 201)
 
+        location = loc.Location(location)
+        user_obj["location"] = location.__repr__()
         token = jwt.encode({
             'public_id': user_obj["_id"],
             'exp': datetime.utcnow() + timedelta(weeks=2)
         }, config.SECRET_KEY)
+
+        db.patrol.update_one({"_id": user_obj["_id"]}, {
+            "$set": {
+                "location": user_obj["location"]}
+        })
         return make_response(jsonify(login=True, user_exists=True,  token=token), 201)
+
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
 
 
+@patrol.route("update_location", methods=['POST'])
+@token_required
+def updateLoc(current_user):
+    try:
+        req = dict(request.json)
+        location = req.get("location")
+        if not location:
+            return make_response(jsonify(error="No Data payload!!"), 401)
 
-# Argon2 for hashing passwords using salt
+        location = loc.Location(location)
+        current_user["location"] = location.__repr__()
+
+        db.patrol.update_one({"_id": current_user["_id"]}, {
+            "$set": {
+                "location": current_user["location"]}
+        })
+        return make_response(jsonify(msg="update_success"), 200)
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(error=e), 401)
+
+
+    # Argon2 for hashing passwords using salt
 ph = PasswordHasher()
+
 
 def Phash(password):
     return ph.hash(password)
