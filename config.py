@@ -7,6 +7,8 @@ load_dotenv()
 MONGO_URI = os.getenv('MONGO_URI')
 API_KEY = os.getenv('API_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
+# Get port or fallback
+PORT = int(os.getenv("PORT", 8080))
 
 ### MongoDB ###
 # This is seperated from main app so that it

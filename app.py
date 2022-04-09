@@ -1,10 +1,17 @@
+"""
+While lightweight and easy to use, Flask's built-in server 
+is not suitable for production as it doesn't scale well
+
+We use 'waitress' or 'gunicorn' WSGI for production
+"""
+
 from flask import Flask
 import config
-
+from flask_cors import CORS
 
 def create_app():
     app = Flask(__name__)
-
+    CORS(app)
     # Establish connection to MongoDB Cluster
     try:
         from pymongo import MongoClient
@@ -30,5 +37,7 @@ def create_app():
 
 
 if __name__ == '__main__':
+    # Run this script only in development
+    # Use 'waitress' or 'gunicorn' WSGI for production instead
     app = create_app()
     app.run(debug=True)
