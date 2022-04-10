@@ -31,6 +31,7 @@ def create_app():
     from routes.users import Uauth, reports
     from routes.patrol import Pauth
     from routes.patrol import case
+    # from routes.admin import data
 
     # Register Blueprints
     app.register_blueprint(test.test)
