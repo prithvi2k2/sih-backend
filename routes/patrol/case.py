@@ -3,7 +3,7 @@ from flask import Blueprint, request, jsonify, make_response
 from itsdangerous import json
 from routes.patrol import Special_permissionAuth, API_required, token_required
 from config import db
-from Logic_objects import file_server as logic
+from Logic_objects import reward_crypto
 
 
 case = Blueprint('case', __name__)
@@ -59,7 +59,7 @@ def case_status(current_authority):
             case_info = db.reports.find_one({"_id": case_id})
             wallet_addr = case_info['wallet_addr']
 
-            send_crypto = logic.Reward(wallet_addr)
+            send_crypto = reward_crypto.Reward(wallet_addr)
             return_hash = send_crypto.sign_transaction()
             if not return_hash:
                 return make_response(jsonify(error="unable to send cryptocurrency"))

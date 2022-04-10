@@ -2,13 +2,22 @@ from numpy import tri
 import websockets
 import asyncio
 import websockets_routes
-from config import db
+from pymongo import MongoClient, GEO2D
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
+client = MongoClient(os.getenv('MONGO_URI'))
+db = client["secrep"]
 
 
 router = websockets_routes.Router()
 PORT = 5001
 
 print("Server listening on Port " + str(PORT))
+
+# db =
 
 
 @router.route('/classified/{case_type}/{pid}')
@@ -21,9 +30,12 @@ async def echo(websocket, path):
             case_type, pid = path.params["case_type"], path.params["pid"]
             try:
                 page_id = int(pid)
+                items = 20 * page_id
                 cases = db.reports.find(
-                    {"classified_ByUser": 'titan_attack'}).limit(20)
-
+                    {"classified_ByUser": case_type}).limit(items)
+                for i in cases:
+                    print(i)
+                input()
             except:
                 Flag = False
             while Flag:
