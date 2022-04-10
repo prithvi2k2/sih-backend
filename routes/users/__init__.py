@@ -29,6 +29,10 @@ def token_required(f):
                     'message': 'Token invalid or tampered!! Access denied'
                 }), 401)
             current_user = db.users.find_one({"_id": data["public_id"]})
+            if not current_user:
+                return make_response(jsonify({
+                    'message': 'unable to find user '
+                }), 400)
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             return make_response(jsonify({
