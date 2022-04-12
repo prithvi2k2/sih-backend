@@ -1,3 +1,5 @@
+<!-- file to test sockets from /sockets -->
+
 <html>
 
 <head>
@@ -10,14 +12,12 @@
 <body>
     <script type="text/javascript">
         $(document).ready(function () {
-            // const io = require("socket.io-client");
             const socket = io("http://127.0.0.1:5000", {
                 withCredentials: true,
                 extraHeaders: {
                     "my-custom-header": "abcd"
                 }
             });
-            // var socket = io.connect('http://127.0.0.1:5000');
 
             socket.on('connect', function () {
                 socket.send('User has connected!');
