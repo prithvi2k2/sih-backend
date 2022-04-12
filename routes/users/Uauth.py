@@ -17,7 +17,6 @@ user = Blueprint('user', __name__)
 def signup():
     try:
         req = dict(request.json)
-        print(req)
         user = req.get("user")
         password = req.get("password")
         if not user or not password:
@@ -38,11 +37,11 @@ def signup():
             "password": Phash(password),
             "case_ids": []
         }
+
         db.users.insert_one(user_obj)
 
         resp = make_response(
             jsonify(user_exists=False, message="User registered"), 201)
-        resp.headers['Access-Control-Allow-Origin'] = '*'
         return resp
 
     except Exception as e:
@@ -65,17 +64,18 @@ def login():
         user_obj = db.users.find_one({"_id": user_hash})
 
         if user_obj == None:
-            return make_response(jsonify(user_exists=False, login=False, token=None), 401)
+            return make_response(jsonify(login=False, user_exists=False), 401)
 
         if not verifyPass(user_obj["password"], password):
             return make_response(
                 jsonify(message="Incorrect Password",
-                        login=False, user_exists=True, token=None), 401)
+                        login=False, user_exists=True), 401)
 
         token = jwt.encode({
             'public_id': user_obj["_id"],
             'exp': datetime.utcnow() + timedelta(weeks=2)
         }, config.SECRET_KEY)
+
         return make_response(
             jsonify(login=True, user_exists=True,  token=token), 200)
     except Exception as e:

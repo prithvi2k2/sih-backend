@@ -32,7 +32,7 @@ def token_required(f):
             if not current_user:
                 return make_response(jsonify({
                     'message': 'unable to find user '
-                }), 400)
+                }), 404)
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             return make_response(jsonify({
@@ -55,7 +55,7 @@ def API_required(f):
             pass
         else:
             return make_response(jsonify({
-                'message': 'api_key is invalid !!'
+                'message': 'API_KEY is invalid !!'
             }), 401)
 
         return f(*args, **kwargs)

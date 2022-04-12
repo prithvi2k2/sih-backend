@@ -8,12 +8,9 @@ from Logic_objects import location as loc
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, make_response
 from routes.patrol import Special_permissionAuth, API_required, token_required
-patrol = Blueprint('patrol', __name__)
-# sock = Sock(patrol)
-# socketio = SocketIO(app)
 
-# inits
-# print("\n\n\n\n", sock_server, "\n\n\n\n")
+
+patrol = Blueprint('patrol', __name__)
 
 
 @patrol.route("/signup",  methods=['POST'])
@@ -42,16 +39,11 @@ def signup():
         user_obj = db.patrol.find_one({"name": AuthorityID})
 
         if user_obj != None:
-            return make_response(jsonify(user_exists=True, token=None), 401)
+            return make_response(jsonify(user_exists=True), 409)
 
         db.patrol.insert_one(auth_obj)
-        # jwt generation
-        token = jwt.encode({
-            'public_id': auth_obj["_id"],
-            'exp': datetime.utcnow() + timedelta(weeks=2)
-        }, config.SECRET_KEY)
 
-        return make_response(jsonify(user_exists=False, token=token), 201)
+        return make_response(jsonify(user_exists=False), 201)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
@@ -72,15 +64,15 @@ def login():
         user_obj = db.patrol.find_one({"name": AuthorityID})
 
         if user_obj == None:
-            print("lmaoooee")
-            return make_response(jsonify(user_exists=False, login=False, token=None), 401)
+            return make_response(jsonify(login=False, user_exists=False), 401)
 
         if not verifyPass(user_obj["password"], pw):
-            print("loll")
-            return make_response(jsonify(login=False, user_exists=True,  token=None), 201)
+            return make_response(jsonify(login=False, user_exists=True), 201)
 
         location = loc.Location(location)
         user_obj["location"] = location.__repr__()
+        
+        # jwt generation
         token = jwt.encode({
             'public_id': user_obj["_id"],
             'exp': datetime.utcnow() + timedelta(weeks=2)
@@ -90,7 +82,8 @@ def login():
             "$set": {
                 "location": user_obj["location"]}
         })
-        return make_response(jsonify(login=True, user_exists=True,  token=token), 201)
+
+        return make_response(jsonify(login=True, user_exists=True,  token=token), 200)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
@@ -113,6 +106,7 @@ def updateLoc(current_user):
             "$set": {
                 "location": current_user["location"]}
         })
+        
         return make_response(jsonify(msg="update_success"), 200)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)

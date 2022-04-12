@@ -8,27 +8,36 @@ import jwt
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
-        print("my boii")
 
-        # jwt is passed in the request header
+        token = None
+
+        # jwt obtained the request header
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
-            return make_response(jsonify({'message': 'Token is missing !!'})), 401
+            return make_response(jsonify({'message': 'Token is missing !!'}), 400)
 
         # jwt validation
         try:
-            data = jwt.decode(
-                token, config.SECRET_KEY, algorithms=["HS256"])
+            try:
+                data = jwt.decode(
+                    token, config.SECRET_KEY, algorithms=["HS256"])
+            except Exception as e:
+                return make_response(jsonify({
+                    'message': 'Token invalid or tampered!! Access denied'
+                }), 401)
             current_user = db.patrol.find_one({"_id": data["public_id"]})
+            if not current_user:
+                return make_response(jsonify({
+                    'message': 'unable to find patrol authority'
+                }), 404)
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             return make_response(jsonify({
-                'message': 'unable to find patrol authority'
-            })), 401
+                'message': 'unable to patrol or token tampered!'
+            }), 400)
 
-        # returns the current logged in users contex to the routes
+        # returns the current logged in users context to the routes
         return f(current_user, *args, **kwargs)
     return decorated
 
@@ -36,20 +45,17 @@ def token_required(f):
 def API_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # jwt is passed in the request header
         if 'X-API-Key' in request.headers:
             api_key = request.headers['X-API-Key']
         if not api_key:
-            return make_response(jsonify({'message': 'APIKEY is missing !!'})), 511
+            return make_response(jsonify({"message": "API-KEY is missing !!"}), 400)
         if str(api_key) == config.API_KEY:
-            # print("thank god")
             pass
         else:
             return make_response(jsonify({
-                'message': 'api_key is invalid !!'
-            })), 401
+                'message': 'API_KEY is invalid !!'
+            }), 401)
 
-        # returns the current logged in users context to the routes
         return f(*args, **kwargs)
     return decorated
 

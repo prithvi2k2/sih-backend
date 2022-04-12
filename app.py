@@ -1,16 +1,11 @@
 
 from flask import Flask
 import config
-from flask_ngrok import run_with_ngrok
-from flask_cors import CORS
 from flask_socketio import SocketIO
 
 
 def create_app():
     app = Flask(__name__)
-
-    # run_with_ngrok(app)
-    # CORS(app)
 
     # Establish connection to MongoDB Cluster
     try:
@@ -26,12 +21,16 @@ def create_app():
     except Exception as ex:
         print('Can not connect to DB=>'+str(ex))
 
+    # Config websocket with app
+    config.socket = SocketIO(app, cors_allowed_origins='*')
+
     # Import blueprints
     from routes import test
     from routes.users import Uauth, reports
     from routes.patrol import Pauth
     from routes.patrol import case
     # from routes.admin import data
+    from sockets.admin import admin_sockets
 
     # Register Blueprints
     app.register_blueprint(test.test)
@@ -39,10 +38,13 @@ def create_app():
     app.register_blueprint(reports.file)
     app.register_blueprint(Pauth.patrol, url_prefix='/patrol')
     app.register_blueprint(case.case, url_prefix='/patrol')
+    app.register_blueprint(admin_sockets)
+
 
     return app
 
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    # Setup WebSocket and run app
+    config.socket.run(app)

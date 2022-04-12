@@ -1,6 +1,5 @@
 # from Logic_objects import
 from flask import Blueprint, request, jsonify, make_response
-from itsdangerous import json
 from routes.patrol import Special_permissionAuth, API_required, token_required
 from config import db
 from Logic_objects import reward_crypto
@@ -34,9 +33,9 @@ def case_status(current_authority):
             'message': 'unable to find user '
         }), 400)
     try:
-        resp = dict(request.json)
+        req = dict(request.json)
 
-        case_id, status = resp.get('caseID'), resp.get('status')
+        case_id, status = req.get('caseID'), req.get('status')
         if not case_id or not status:
             return make_response(jsonify(error="No Data payload!!"), 401)
 
@@ -46,11 +45,11 @@ def case_status(current_authority):
         if status == "insufficient":
             db.reports.update_one({"_id": case_id}, {
                 "$set": {"Status": "insufficient"}})
-            return make_response(jsonify(msg="Status Updated")), 200
+            return make_response(jsonify(msg="Status Updated"), 200)
         elif status == "Assigned":
             db.reports.update_one({"_id": case_id}, {
                 "$set": {"Status": "Assigned"}})
-            return make_response(jsonify(msg="Status Updated")), 200
+            return make_response(jsonify(msg="Status Updated"), 200)
 
         elif status == "Resolved":
             db.reports.update_one({"_id": case_id}, {
@@ -67,12 +66,12 @@ def case_status(current_authority):
 
         elif status == "Duplicate":
             db.reports.delete_one({"_id": case_id})
-            return make_response(jsonify(msg="Case removed")), 200
+            return make_response(jsonify(msg="Case removed"), 204)
         elif status == "Unassigned":
             db.reports.update_one({"_id": case_id}, {
                 "$set": {"Status": "Unassigned",
                          "authority_assigned": None}})
-            return make_response(jsonify(msg="Status Updated")), 200
+            return make_response(jsonify(msg="Status Updated"), 200)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
