@@ -1,9 +1,10 @@
-# Thinking of implementing sockets seperate from routes in /sockets
-
+"""
+ Thinking of implementing sockets seperately from routes in /sockets directory
+"""
 # import websockets
 # import asyncio
 # import websockets_routes
-from config import db
+# from config import db
 
 
 # router = websockets_routes.Router()
