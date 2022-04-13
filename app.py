@@ -1,3 +1,9 @@
+"""
+While lightweight and easy to use, Flask's built-in server 
+is not suitable for production as it doesn't scale well
+
+We use 'waitress' or 'gunicorn' WSGI for production
+"""
 
 from flask import Flask
 import config
@@ -6,7 +12,7 @@ from flask_socketio import SocketIO
 
 def create_app():
     app = Flask(__name__)
-
+        
     # Establish connection to MongoDB Cluster
     try:
         from pymongo import MongoClient, GEO2D
@@ -21,7 +27,7 @@ def create_app():
     except Exception as ex:
         print('Can not connect to DB=>'+str(ex))
 
-    # Config websocket with app
+    # Config websocket with app, also enables CORS
     config.socket = SocketIO(app, cors_allowed_origins='*')
 
     # Import blueprints
@@ -29,7 +35,6 @@ def create_app():
     from routes.users import Uauth, reports
     from routes.patrol import Pauth
     from routes.patrol import case
-    # from routes.admin import data
     from sockets.admin import admin_sockets
 
     # Register Blueprints
@@ -45,6 +50,8 @@ def create_app():
 
 
 if __name__ == '__main__':
+    # Run this script only in development
+    # Use 'waitress' or 'gunicorn' WSGI for production instead
     app = create_app()
-    # Setup WebSocket and run app
+    # Run app with SocketIO to add support for websockets
     config.socket.run(app)

@@ -10,12 +10,15 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 GANACHE_URL = os.getenv('GANACHE_URL')
 CONTRACT = os.getenv('CONTRACT')
 PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+# Get port or fallback
+PORT = int(os.getenv("PORT", 8080))
 
-### MongoDB ###
-# This is seperated from main app so that it
-# can be flexibly imported to blueprints without causing circular import errors
+### Global Objects ###
+# Thess are seperated from main app so that they can be flexibly
+# imported to blueprints without causing any circular import errors/problems
 
-# 'db' object will initialize & refer to default database when app.py is run and
-#  can be imported and used as is for DB operations
+# 'db' object will initialize & refer to default database when app.py is run
 db = None
+
+# 'socket' is the SocketIO server object, initialised in app.py
 socket = None
