@@ -8,14 +8,11 @@ WORKDIR /src
 # This is heavily effecting build-time while building docker images,
 # but also compensates it by providing security
 RUN apk add gcc musl-dev libffi-dev \
-    && pip install -U cffi pip setuptools
-
-# Install requirements
-RUN pip install -r requirements.txt
+    && pip install -U cffi pip \
+    # Also install production server WSGI packages and other requirements
+    && pip install gunicorn eventlet \
+    && pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8080
 
-# This command is specifically for Heroku, because of how differently it treats Dockerfiles
-# It ignores EXPOSE commands and we don't see any other way to PUBLISH ports except below
-# Here, $PORT is pre-defined env var by Heroku
-CMD python prod_server.py
+CMD gunicorn -k eventlet -w 1 app:create_app

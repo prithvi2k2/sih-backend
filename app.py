@@ -54,4 +54,4 @@ if __name__ == '__main__':
     # Use 'waitress' or 'gunicorn' WSGI for production instead
     app = create_app()
     # Run app with SocketIO to add support for websockets
-    config.socket.run(app)
+    config.socket.run(app, port=config.PORT)
