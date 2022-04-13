@@ -8,7 +8,7 @@ WORKDIR /src
 # This is heavily effecting build-time while building docker images,
 # but also compensates it by providing security
 RUN apk add gcc musl-dev libffi-dev \
-    && pip install -U cffi pip \
+    && pip install -U cffi pip wheel \
     # Also install production server WSGI packages and other requirements
     && pip install gunicorn eventlet \
     && pip install --no-cache-dir -r requirements.txt
