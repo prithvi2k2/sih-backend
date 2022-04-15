@@ -9,19 +9,17 @@ from flask import Flask
 import config
 from flask_socketio import SocketIO
 
-
 def create_app():
     app = Flask(__name__)
-        
+
     # Establish connection to MongoDB Cluster
     try:
         from pymongo import MongoClient, GEO2D
         # drop your mongoDB uri as MONGO_URI in an env file
-        client = MongoClient(config.MONGO_URI)
+        client = MongoClient(config.MONGO_URI, connect=False)
         # Connecting to main database client["DATABASE_NAME"]
         config.db = client["secrep"]
         config.db.patrol.create_index([("location", GEO2D)])
-
         print(config.db)
         print(' * Established connection to DB *')
     except Exception as ex:
@@ -54,4 +52,4 @@ if __name__ == '__main__':
     # Use 'waitress' or 'gunicorn' WSGI for production instead
     app = create_app()
     # Run app with SocketIO to add support for websockets
-    config.socket.run(app, port=config.PORT)
+    config.socket.run(app, port=config.PORT, debug=True)

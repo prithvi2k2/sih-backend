@@ -1,18 +1,38 @@
+# STAGE 1
+FROM python:3.9.12-alpine3.15 AS compile-time
+
+# Install compilation dependencies
+RUN apk add gcc musl-dev libffi-dev
+
+# Install app dependencies in /.venv
+COPY Pipfile .
+COPY Pipfile.lock .
+# Using `pipenv` coz `pip` always lets me down installing from requirements.txt
+# pip is dumb and tries to install windows only python packages in linux
+# pipenv might be slow but gets the work done unlike fighting with pip
+# PIPENV_VENV_IN_PROJECT=1 will create /.venv by default
+RUN pip install pipenv \
+    && PIPENV_VENV_IN_PROJECT=1 pipenv install --ignore-pipfile
+# venv isn't necessary in docker image builds, but it can drastically 
+# reduce build-times and produce optimised images in multi-stage builds
+
+
+# STAGE 2
 FROM python:3.9.12-alpine3.15
 
-COPY . /src
+ENV DefPORT = 8080
+ENV GET_PORT = ${PORT:-DefPORT}
 
+# Copy virtual env from STAGE 1
+COPY --from=compile-time /.venv /.venv
+ENV PATH="/.venv/bin:$PATH"
+
+# Install application into container
+COPY ./src /src
 WORKDIR /src
-
-# Ensure installation of gcc and proper cffi bindings for working of Argon2
-# This is heavily effecting build-time while building docker images,
-# but also compensates it by providing security
-RUN apk add gcc musl-dev libffi-dev \
-    && pip install -U cffi pip wheel \
-    # Also install production server WSGI packages and other requirements
-    && pip install gunicorn eventlet \
-    && pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8080
 
-CMD gunicorn -k eventlet -w 1 app:create_app
+# Run application
+# DO NOT PASS `--preload` TO GUNICORN, IT IS CAUSING DEADLOCKs
+CMD gunicorn -c gunicorn.conf.py "app:create_app()"
