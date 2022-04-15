@@ -4,8 +4,6 @@ import config
 from flask import jsonify, make_response, request
 import jwt
 
-# Decorators
-
 
 def token_required(f):
     @wraps(f)
@@ -13,7 +11,7 @@ def token_required(f):
 
         token = None
 
-        # jwt is passed in the request header
+        # jwt obtained the request header
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
@@ -28,11 +26,15 @@ def token_required(f):
                 return make_response(jsonify({
                     'message': 'Token invalid or tampered!! Access denied'
                 }), 401)
-            current_user = db.users.find_one({"_id": data["public_id"]})
+            current_user = db.patrol.find_one({"_id": data["public_id"]})
+            if not current_user:
+                return make_response(jsonify({
+                    'message': 'unable to find patrol authority'
+                }), 404)
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             return make_response(jsonify({
-                'message': 'unable to find user or token tampered!'
+                'message': 'unable to patrol or token tampered!'
             }), 400)
 
         # returns the current logged in users context to the routes
@@ -51,8 +53,20 @@ def API_required(f):
             pass
         else:
             return make_response(jsonify({
-                'message': 'api_key is invalid !!'
+                'message': 'API_KEY is invalid !!'
             }), 401)
 
+        return f(*args, **kwargs)
+    return decorated
+
+
+def Special_permissionAuth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        '''
+        stuff here is validated and functions using this 
+        decorater are not accessed bby anyone unless admin authority 
+        basically to register all police ids
+        '''
         return f(*args, **kwargs)
     return decorated

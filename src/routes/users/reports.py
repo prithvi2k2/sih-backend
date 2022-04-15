@@ -18,7 +18,7 @@ from routes.users import API_required, token_required
 class STATUS(enum.Enum):
     insufficient = 1
     Unassigned = 2
-    Inprogress = 3
+    Assigned = 3
     Resolved = 4
     Duplicate = 5
 
@@ -30,6 +30,10 @@ file = Blueprint('file', __name__)
 @token_required
 @API_required
 def live(current_user):
+    if not current_user:
+        return make_response(jsonify({
+            'message': 'unable to find user '
+        }), 400)
     """
     Format of data intake
 
@@ -53,7 +57,6 @@ def live(current_user):
 
     try:
         crime_id = str(uuid.uuid4())
-
         payload = dict(request.files)
         data = json.load(payload["data"])
         del payload["data"]
@@ -79,6 +82,7 @@ def live(current_user):
         # finding nearest police station
         authority_assigned = db.patrol.find(
             {"location": {"$near": location.__repr__()}}).limit(1)
+
         print(authority_assigned[0]["_id"])
         crime_obj = {
             "_id": crime_id,
@@ -92,7 +96,7 @@ def live(current_user):
             "classified_ByUser": classified_ByUser,
             "classified_model": None,
             "faces_bymodel": [],
-            "Status": "Unassigned",
+            "Status": "Assigned",
             "wallet_addr": current_user["wallet_addr"],
             "authority_assigned": authority_assigned[0]["_id"]
         }
@@ -104,7 +108,14 @@ def live(current_user):
         current_user["case_ids"].append(crime_id)
         db.users.update_one({"_id": current_user["_id"]}, {
             "$set": {"case_ids": current_user["case_ids"]}})
+
+        cases = authority_assigned[0]['case_ids']
+        cases.append(crime_id)
+        task = db.patrol.update_one({"_id": authority_assigned[0]["_id"]}, {
+            "$set": {"case_ids": cases}})
+
         return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"]), 200)
+
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(uploaded="fail", file_id=None, error=e), 403)
