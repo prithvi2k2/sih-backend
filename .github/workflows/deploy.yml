@@ -39,3 +39,7 @@ jobs:
           HD_MONGO_URI: ${{secrets.ENV_MONGO_URI}}
           HD_API_KEY: ${{secrets.ENV_API_KEY}}
           HD_SECRET_KEY: ${{secrets.ENV_SECRET_KEY}}
+          HD_GANACHE_URL: ${{secrets.ENV_GANACHE_URL}}
+          HD_CONTRACT: ${{secrets.ENV_CONTRACT}}
+          HD_PRIVATE_KEY: ${{secrets.ENV_PRIVATE_KEY}}
+
