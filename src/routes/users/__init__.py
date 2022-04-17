@@ -42,21 +42,3 @@ def token_required(f):
         # returns the current logged in users context to the routes
         return f(current_user, *args, **kwargs)
     return decorated
-
-
-def API_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'X-API-Key' in request.headers:
-            api_key = request.headers['X-API-Key']
-        if not api_key:
-            return make_response(jsonify({"message": "API-KEY is missing !!"}), 400)
-        if str(api_key) == config.API_KEY:
-            pass
-        else:
-            return make_response(jsonify({
-                'message': 'API_KEY is invalid !!'
-            }), 401)
-
-        return f(*args, **kwargs)
-    return decorated

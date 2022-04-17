@@ -1,13 +1,13 @@
 
 import uuid
-from argon2 import PasswordHasher
 import jwt
 from config import db
 import config
 from Logic_objects import location as loc
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, make_response
-from routes.patrol import Special_permissionAuth, API_required, token_required
+from routes.patrol import Special_permissionAuth, token_required
+from routes import API_required, Phash, verifyPass
 
 
 patrol = Blueprint('patrol', __name__)
@@ -67,7 +67,9 @@ def login():
             return make_response(jsonify(login=False, user_exists=False), 401)
 
         if not verifyPass(user_obj["password"], pw):
-            return make_response(jsonify(login=False, user_exists=True), 201)
+            return make_response(
+                jsonify(message="Incorrect Password",
+                        login=False, user_exists=True), 401)
 
         location = loc.Location(location)
         user_obj["location"] = location.__repr__()
@@ -92,6 +94,7 @@ def login():
 
 @patrol.route("update_location", methods=['POST'])
 @token_required
+@API_required
 def updateLoc(current_user):
     try:
         req = dict(request.json)
@@ -108,21 +111,7 @@ def updateLoc(current_user):
         })
         
         return make_response(jsonify(msg="update_success"), 200)
+        
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
-
-
-    # Argon2 for hashing passwords using salt
-ph = PasswordHasher()
-
-
-def Phash(password):
-    return ph.hash(password)
-
-
-def verifyPass(hash, password):
-    try:
-        return ph.verify(hash, password)
-    except:
-        return False

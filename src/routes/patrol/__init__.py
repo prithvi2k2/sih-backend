@@ -34,31 +34,12 @@ def token_required(f):
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             return make_response(jsonify({
-                'message': 'unable to patrol or token tampered!'
+                'message': 'unable to find patrol or token tampered!'
             }), 400)
 
         # returns the current logged in users context to the routes
         return f(current_user, *args, **kwargs)
     return decorated
-
-
-def API_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'X-API-Key' in request.headers:
-            api_key = request.headers['X-API-Key']
-        if not api_key:
-            return make_response(jsonify({"message": "API-KEY is missing !!"}), 400)
-        if str(api_key) == config.API_KEY:
-            pass
-        else:
-            return make_response(jsonify({
-                'message': 'API_KEY is invalid !!'
-            }), 401)
-
-        return f(*args, **kwargs)
-    return decorated
-
 
 def Special_permissionAuth(f):
     @wraps(f)

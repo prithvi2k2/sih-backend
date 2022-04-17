@@ -12,7 +12,8 @@ from ML_workspace import model
 from Logic_objects import file_server
 from flask import Blueprint, request, make_response, jsonify
 
-from routes.users import API_required, token_required
+from routes.users import token_required
+from routes import API_required
 
 
 class STATUS(enum.Enum):
@@ -60,8 +61,8 @@ def live(current_user):
         payload = dict(request.files)
         data = json.load(payload["data"])
         del payload["data"]
-        desc, victims, ofenders, location, time, classified_ByUser = data.get("desc", None), data.get(
-            "victims", None), data.get("ofenders", None), data.get("location", None), data.get("time", None), data.get("classified_ByUser", None)
+        desc, victims, ofenders, location, time, classified_ByUser = data.get("desc"), data.get(
+            "victims"), data.get("ofenders"), data.get("location"), data.get("time"), data.get("classified_ByUser")
         # print(desc, victims, ofenders, location, time)
         if not desc or not location or not time:
             return make_response(jsonify(error="No Data payload!!"), 401)
@@ -127,7 +128,7 @@ def live(current_user):
 def get_case(current_user):
     try:
         data = dict(request.json)
-        case_id = data.get("case_id", None)
+        case_id = data.get("case_id")
 
         case_info = db.reports.find_one({"_id": case_id})
         if not case_info:

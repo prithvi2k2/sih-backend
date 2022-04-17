@@ -1,6 +1,7 @@
 # from Logic_objects import
 from flask import Blueprint, request, jsonify, make_response
-from routes.patrol import Special_permissionAuth, API_required, token_required
+from routes.patrol import Special_permissionAuth, token_required
+from routes import API_required
 from config import db
 from Logic_objects import reward_crypto
 

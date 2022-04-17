@@ -20,9 +20,6 @@ RUN pip install pipenv \
 # STAGE 2
 FROM python:3.9.12-alpine3.15
 
-ENV DefPORT = 8080
-ENV GET_PORT = ${PORT:-DefPORT}
-
 # Copy virtual env from STAGE 1
 COPY --from=compile-time /.venv /.venv
 ENV PATH="/.venv/bin:$PATH"

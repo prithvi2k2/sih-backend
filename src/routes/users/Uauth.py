@@ -1,13 +1,10 @@
 import jwt
-from argon2 import PasswordHasher
-from hashlib import sha256
 from config import db
 import config
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, make_response
-
-from routes.users import API_required, token_required
-
+from routes.users import token_required
+from routes import API_required, Uhash, Phash, verifyPass
 
 user = Blueprint('user', __name__)
 
@@ -84,8 +81,8 @@ def login():
 
 
 @user.route('/change_wallet', methods=['POST'])
-@API_required
 @token_required
+@API_required
 def change_wallet(current_user):
     try:
         data = dict(request.json)
@@ -104,35 +101,15 @@ def change_wallet(current_user):
 
 # default route to authenticate or for init after re-opening client
 @user.route('/init')
-@API_required
 @token_required
+@API_required
 def init(current_user):
     print(current_user)
     return "reyy"
 
 
 @user.route('/Get_UserCases',  methods=['GET'])
-@API_required
 @token_required
+@API_required
 def Get_UserCases(current_user):
     return make_response(jsonify(cases=current_user["case_ids"]))
-
-
-# SHA256 for hashing usernames
-def Uhash(username):
-    return sha256(username.encode('utf-8')).hexdigest()
-
-
-# Argon2 for hashing passwords using salt
-ph = PasswordHasher()
-
-
-def Phash(password):
-    return ph.hash(password)
-
-
-def verifyPass(hash, password):
-    try:
-        return ph.verify(hash, password)
-    except:
-        return False
