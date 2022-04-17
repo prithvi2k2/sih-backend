@@ -33,6 +33,7 @@ def create_app():
     from routes.users import Uauth, reports
     from routes.patrol import Pauth
     from routes.patrol import case
+    from routes.admin import admin
     from sockets.admin import admin_sockets
 
     # Register Blueprints
@@ -41,6 +42,7 @@ def create_app():
     app.register_blueprint(reports.file)
     app.register_blueprint(Pauth.patrol, url_prefix='/patrol')
     app.register_blueprint(case.case, url_prefix='/patrol')
+    app.register_blueprint(admin.admin, url_prefix='/admin')
     app.register_blueprint(admin_sockets)
 
 
