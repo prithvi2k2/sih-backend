@@ -11,7 +11,7 @@ GANACHE_URL = os.getenv('GANACHE_URL')
 CONTRACT = os.getenv('CONTRACT')
 PRIVATE_KEY = os.getenv('PRIVATE_KEY')
 # Get port or fallback
-PORT = int(os.getenv("PORT", 8080))
+PORT = int(os.getenv("PORT", 3000))
 
 ### Global Objects ###
 # Thess are seperated from main app so that they can be flexibly

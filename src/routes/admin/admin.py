@@ -43,13 +43,14 @@ def login():
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
 
+
 @admin.route("/get_cases")
 @token_required
 @API_required
-def getCases(*args):
-    try: 
+def getCases():
+    try:
         reports = list(db.reports.find())
-        return make_response(jsonify(reports),200)
+        return make_response(jsonify(reports), 200)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 404)

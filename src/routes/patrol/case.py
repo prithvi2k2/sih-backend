@@ -72,7 +72,10 @@ def case_status(current_authority):
             db.reports.update_one({"_id": case_id}, {
                 "$set": {"Status": "Unassigned",
                          "authority_assigned": None}})
-            return make_response(jsonify(msg="Status Updated"), 200)
+
+            db.patrol.update_one({"_id": current_authority['_id']}, {
+                "$set": {"case_ids": current_authority['case_ids'].remove(case_id)}})
+            return make_response(jsonify(msg="Status Updated and authority removed"), 200)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)

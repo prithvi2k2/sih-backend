@@ -1,10 +1,99 @@
-from config import socket
-from flask_socketio import send
-from flask import Blueprint
-
+from argparse import Namespace
+from config import socket, db
+import config
+from flask_socketio import send, emit, ConnectionRefusedError
+from flask import Blueprint, request
+from functools import wraps
+from Logic_objects.location import Location
+import jwt
+import time
+import pymongo
+import logging
+from routes.patrol import Special_permissionAuth
 admin_sockets = Blueprint('admin_sockets', __name__)
 
-@socket.on('message')
+
+@socket.on('connect')
+@Special_permissionAuth
+def test_connect():
+    print('Broo connection established 🤝 🤝')
+
+
+@socket.on('Get_OnLocation')
+@Special_permissionAuth
 def handleMessage(msg):
-    print('Message: ' + msg)
-    send(msg, broadcast = True)
+    """
+    Format 
+    msg = {"location": "uppal",
+            "pid": 2}
+    """
+    location, page = msg.get("location"), msg.get("pid")
+    if not location or not page:
+        emit('error_msg', {"error": "No data payload"})
+        raise ConnectionRefusedError("disconnect")
+    else:
+        loc = Location(location)
+        results = db.reports.find(
+            {"location": {"$near": location.__repr__()}}).skip(10*(page - 1)).limit(page*10)
+        emit('CasesUpadte', results)
+
+
+@socket.on('Get_OnStatus')
+@Special_permissionAuth
+def Get_OnStatus(msg):
+    """
+    Format 
+    msg = {"Status": "ASSIGNED",
+            "pid": 2}
+    """
+    Status, page = msg.get("Status"), msg.get("pid")
+    if not Status or not page:
+        emit('error_msg', {"error": "No data payload"})
+        raise ConnectionRefusedError("disconnect")
+    else:
+        results = db.reports.find({"Status": Status}).skip(
+            10*(page - 1)).limit(page*10)
+        emit('CasesUpadte', results)
+    print(msg)
+
+
+@socket.on('Get_OnScore')
+@Special_permissionAuth
+def Get_OnScore(msg):
+    """
+    PENDING AFTER ML
+    """
+    Score, page = msg.get("Score"), msg.get("pid")
+    if not Score or not page:
+        emit('error_msg', {"error": "No data payload"})
+        raise ConnectionRefusedError("disconnect")
+    elif Score == "High":
+        db.reports.find().sort("crime_score", 1).skip(
+            10*(page - 1)).limit(page*10)
+    elif Score == "Low":
+        db.reports.find().sort("crime_score", -1).skip(
+            10*(page - 1)).limit(page*10)
+    print(msg)
+
+
+@socket.on('Get_Onclassified')
+@Special_permissionAuth
+def Get_Onclassified(msg):
+    """
+    PENDING AFTER FRONTEND AND ML
+    """
+    classified, page = msg.get("classified"), msg.get("pid")
+    if not classified or not page:
+        emit('error_msg', {"error": "No data payload"})
+        raise ConnectionRefusedError("disconnect")
+    else:
+        results = db.reports.find({"classified_model": classified}).skip(
+            10*(page - 1)).limit(page*10)
+        emit('CasesUpadte', results)
+    print(msg)
+
+
+@ socket.on('disconnet')
+@Special_permissionAuth
+def test_connect():
+    print('Broooo 💔')

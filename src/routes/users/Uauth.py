@@ -1,3 +1,4 @@
+
 import jwt
 from config import db
 import config
@@ -106,6 +107,18 @@ def change_wallet(current_user):
 def init(current_user):
     print(current_user)
     return "reyy"
+
+
+@user.route('/DelAccount', methods=['DELETE'])
+@token_required
+@API_required
+def DelAccount(current_user):
+    try:
+        db.users.delete_one({"_id": current_user['_id']})
+        return make_response(jsonify(accountDel=True))
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(error=e), 401)
 
 
 @user.route('/Get_UserCases',  methods=['GET'])

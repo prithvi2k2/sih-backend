@@ -73,7 +73,7 @@ def login():
 
         location = loc.Location(location)
         user_obj["location"] = location.__repr__()
-        
+
         # jwt generation
         token = jwt.encode({
             'public_id': user_obj["_id"],
@@ -109,9 +109,28 @@ def updateLoc(current_user):
             "$set": {
                 "location": current_user["location"]}
         })
-        
+
         return make_response(jsonify(msg="update_success"), 200)
-        
+
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(error=e), 401)
+
+
+@patrol.route("DELpolice", methods=['DELETE'])
+@token_required
+@API_required
+@Special_permissionAuth
+def DELpolice(current_user):
+    try:
+        for i in current_user['case_ids']:
+            db.reports.update_one({"_id": i}, {
+                "$set": {"Status": "Unassigned",
+                         "authority_assigned": None}})
+
+        db.patrol.delete_one({"_id": current_user['_id']})
+        return make_response(jsonify(accountDel=True))
+
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
