@@ -19,7 +19,7 @@ def login():
         pw = req.get("password")
 
         if not uid or not pw:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         admin_obj = db.admin.find_one({"_id": uid})
 
@@ -43,13 +43,14 @@ def login():
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
 
-@admin.route("/get_cases")
+
+@admin.route("/get-cases")
 @token_required
 @API_required
 def getCases(*args):
-    try: 
+    try:
         reports = list(db.reports.find())
-        return make_response(jsonify(reports),200)
+        return make_response(jsonify(cases=reports), 200)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 404)

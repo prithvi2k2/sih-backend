@@ -23,7 +23,7 @@ def signup():
         location = req.get("location")
         pw = req.get("password")
         if not AuthorityID or not pw or not location:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         location = loc.Location(location)
         if not location.__repr__():
@@ -59,7 +59,7 @@ def login():
         pw = req.get("password")
 
         if not AuthorityID or not pw or not location:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         user_obj = db.patrol.find_one({"name": AuthorityID})
 
@@ -92,7 +92,7 @@ def login():
         return make_response(jsonify(error=e), 401)
 
 
-@patrol.route("update_location", methods=['POST'])
+@patrol.route("update-location", methods=['POST'])
 @token_required
 @API_required
 def updateLoc(current_user):
@@ -100,7 +100,7 @@ def updateLoc(current_user):
         req = dict(request.json)
         location = req.get("location")
         if not location:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         location = loc.Location(location)
         current_user["location"] = location.__repr__()
@@ -110,7 +110,7 @@ def updateLoc(current_user):
                 "location": current_user["location"]}
         })
         
-        return make_response(jsonify(msg="update_success"), 200)
+        return make_response(jsonify(msg="update success"), 200)
         
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)

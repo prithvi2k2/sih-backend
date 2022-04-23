@@ -27,7 +27,7 @@ class STATUS(enum.Enum):
 file = Blueprint('file', __name__)
 
 
-@file.route("/upload_Data",  methods=['POST'])
+@file.route("/new-report",  methods=['POST'])
 @token_required
 @API_required
 def live(current_user):
@@ -41,10 +41,10 @@ def live(current_user):
     json = {
         desc : str : data,
         victims : str names,
-        ofenders : str names,
+        offenders : str names,
         location : str loc,
         time : object Datetime()
-        classified_ByUser : str crime_type
+        type : str crime_type
     }
 
     file = {
@@ -61,9 +61,9 @@ def live(current_user):
         payload = dict(request.files)
         data = json.load(payload["data"])
         del payload["data"]
-        desc, victims, ofenders, location, time, classified_ByUser = data.get("desc"), data.get(
-            "victims"), data.get("ofenders"), data.get("location"), data.get("time"), data.get("classified_ByUser")
-        # print(desc, victims, ofenders, location, time)
+        desc, victims, offenders, location, time, type = data.get("desc"), data.get(
+            "victims"), data.get("offenders"), data.get("location"), data.get("time"), data.get("type")
+        # print(desc, victims, offenders, location, time)
         if not desc or not location or not time:
             return make_response(jsonify(error="No Data payload!!"), 401)
 
@@ -78,7 +78,7 @@ def live(current_user):
         location = loc.Location(location)
         print(location.__repr__(),  "\n\n")
         if not location.__repr__():
-            return make_response(jsonify(error="Cannot find the location specified!!"))
+            return make_response(jsonify(error="Cannot find the location specified!!"), 404)
 
         # finding nearest police station
         authority_assigned = db.patrol.find(
@@ -89,12 +89,12 @@ def live(current_user):
             "_id": crime_id,
             "desc": desc,
             "victims": victims,
-            "ofenders": ofenders,
+            "offenders": offenders,
             "location": None,
             "time": time,
             "crime_files": files,
             "crime_score": None,
-            "classified_ByUser": classified_ByUser,
+            "type": type,
             "classified_model": None,
             "faces_bymodel": [],
             "Status": "Assigned",
@@ -115,14 +115,14 @@ def live(current_user):
         task = db.patrol.update_one({"_id": authority_assigned[0]["_id"]}, {
             "$set": {"case_ids": cases}})
 
-        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"]), 200)
+        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"]), 201)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(uploaded="fail", file_id=None, error=e), 403)
 
 
-@file.route("/Get_CaseInfo",  methods=['POST'])
+@file.route("/get-case-info",  methods=['POST'])
 @token_required
 @API_required
 def get_case(current_user):

@@ -80,12 +80,11 @@ def login():
         return make_response(jsonify(error=e), 401)
 
 
-@user.route('/change_wallet', methods=['POST'])
+@user.route('/change-wallet', methods=['POST'])
 @token_required
 @API_required
 def change_wallet(current_user):
     try:
-        print(current_user)
         req = dict(request.json)
         new_addr = req.get("new_addr")
         db.users.update_one({"_id": current_user["_id"]}, {
@@ -99,14 +98,14 @@ def change_wallet(current_user):
 
 
 # default route to authenticate or for init after re-opening client
-@user.route('/init', methods=['POST'])
+@user.route('/init', methods=['GET'])
 @token_required
 @API_required
 def init(current_user):
-    return "reyy"
+    return make_response(jsonify(message="Valid session"), 200)
 
 
-@user.route('/get_reports',  methods=['GET'])
+@user.route('/get-reports',  methods=['GET'])
 @token_required
 @API_required
 def Get_UserCases(current_user):

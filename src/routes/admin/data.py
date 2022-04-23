@@ -26,7 +26,7 @@
 #                 page_id = int(pid)
 #                 items = 20 * page_id
 #                 cases = db.reports.find(
-#                     {"classified_ByUser": case_type}).limit(items)
+#                     {"type": case_type}).limit(items)
 #                 for i in cases:
 #                     print(i)
 #                 input()
@@ -36,7 +36,7 @@
 #                 await websocket.send("Pong: " + cases)
 #                 await asyncio.sleep(10)
 #                 cases = db.reports.find(
-#                     {"classified_ByUser": 'titan_attack'}).limit(20)
+#                     {"type": 'titan_attack'}).limit(20)
 
 #     except websockets.exceptions.ConnectionClosed as e:
 #         print("A client just disconnected")
