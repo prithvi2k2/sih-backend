@@ -1,6 +1,6 @@
 # from Logic_objects import
 from flask import Blueprint, request, jsonify, make_response
-from routes.patrol import Special_permissionAuth, token_required
+from routes.patrol import token_required
 from routes import API_required
 from config import db
 from Logic_objects import reward_crypto
@@ -9,39 +9,39 @@ from Logic_objects import reward_crypto
 case = Blueprint('case', __name__)
 
 
-@case.route("/get_cases", methods=['GET'])
+@case.route("/get-cases", methods=['GET'])
 @token_required
 @API_required
 def get_cases(current_user):
     if not current_user:
         return make_response(jsonify({
-            'message': 'unable to find user '
-        }), 400)
+            'message': 'unable to find user'
+        }), 404)
     try:
         # print()
-        return make_response(jsonify(current_user['case_ids']))
+        return make_response(jsonify(cases=current_user['case_ids']))
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
 
 
-@case.route("/case_status", methods=['POST'])
+@case.route("/case-status", methods=['POST'])
 @token_required
 @API_required
 def case_status(current_authority):
     if not current_authority:
         return make_response(jsonify({
             'message': 'unable to find user '
-        }), 400)
+        }), 404)
     try:
         req = dict(request.json)
 
         case_id, status = req.get('caseID'), req.get('status')
         if not case_id or not status:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         if case_id not in current_authority['case_ids']:
-            return make_response(jsonify(error="Trying to update status of unassigned case"), 401)
+            return make_response(jsonify(error="Trying to update status of unassigned case"), 404)
 
         if status == "insufficient":
             db.reports.update_one({"_id": case_id}, {
@@ -72,7 +72,10 @@ def case_status(current_authority):
             db.reports.update_one({"_id": case_id}, {
                 "$set": {"Status": "Unassigned",
                          "authority_assigned": None}})
-            return make_response(jsonify(msg="Status Updated"), 200)
+
+            db.patrol.update_one({"_id": current_authority['_id']}, {
+                "$set": {"case_ids": current_authority['case_ids'].remove(case_id)}})
+            return make_response(jsonify(msg="Status Updated and authority removed"), 200)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)

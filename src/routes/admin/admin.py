@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
 import jwt
-from routes import API_required, verifyPass
+from routes import API_required, verifyPass, Phash
 from routes.admin import token_required
 from flask import Blueprint, request, jsonify, make_response
 from config import db
 import config
+from Logic_objects import location as loc
 
 
 admin = Blueprint('admin', __name__)
@@ -19,7 +20,7 @@ def login():
         pw = req.get("password")
 
         if not uid or not pw:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         admin_obj = db.admin.find_one({"_id": uid})
 
@@ -43,13 +44,73 @@ def login():
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
 
-@admin.route("/get_cases")
+
+@admin.route("/get-cases")
 @token_required
 @API_required
 def getCases(*args):
-    try: 
+    try:
         reports = list(db.reports.find())
-        return make_response(jsonify(reports),200)
+        return make_response(jsonify(cases=reports), 200)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 404)
+
+'''
+MANAGE PATROL
+'''
+
+@admin.route("/add-patrol",  methods=['POST'])
+@token_required
+@API_required
+def signup(_):
+    try:
+        req = dict(request.json)
+        PatrolID = req.get("PatrolID")
+        location = req.get("location")
+        pw = req.get("password")
+        if not PatrolID or not pw or not location:
+            return make_response(jsonify(error="No Data payload!!"), 400)
+
+        user_obj = db.patrol.find_one({"_id": PatrolID})
+        if user_obj != None:
+            return make_response(jsonify(user_exists=True), 409)
+
+        location = loc.Location(location)
+        if not location.__repr__():
+            return make_response(jsonify(error="Cannot find the location specified!!"), 404)
+        auth_obj = {
+            "_id": PatrolID,
+            "password": Phash(pw),
+            "location": location.__repr__(),
+            "case_ids": []
+        }
+
+        db.patrol.insert_one(auth_obj)
+
+        return make_response(jsonify(user_exists=False), 201)
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(error=str(e)), 400)
+
+
+@admin.route("del-patrol", methods=['DELETE'])
+@token_required
+@API_required
+def DELpolice(_):
+    try:
+        req = dict(request.json)
+        patrol = db.patrol.find_one({"_id": req["PatrolID"]})
+        if patrol:
+            for i in patrol['case_ids']:
+                db.reports.update_one({"_id": i}, {
+                    "$set": {"Status": "Unassigned",
+                             "authority_assigned": None}})
+        else:
+            return make_response(jsonify(error="PatrolID not found"), 404)
+
+        db.patrol.delete_one({"_id": patrol['_id']})
+        return make_response(jsonify(accountDel=True))
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(error=str(e)), 400)

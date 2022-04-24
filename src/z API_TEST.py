@@ -1,3 +1,4 @@
+import pymongo
 import threading
 import socket
 from datetime import datetime
@@ -21,14 +22,14 @@ file = {
 user_body = {
     "user": "mikasa",
     "password": "some_stuff",
-    "new_addr": "0x5ecB3aD7071169A933F22CF3D1360a1a26D22737"
+    "wallet_addr": "0x5ecB3aD7071169A933F22CF3D1360a1a26D22737"
 }
 
 body = {
     "desc": "testing whole obj",
     "victims": "wdef",
     "time": str(datetime.now()),
-    "classified_ByUser": "titan_attack",
+    "type": "titan_attack",
     "location": "uppal"
 }
 
@@ -46,25 +47,41 @@ files = [
     ('data', ('data', json.dumps(body), 'application/json')),
 ]
 
-#json=body ,
+# json=body ,
 police = ['Begumpet', 'Bowenpally', 'Bollaram', 'Trimulgherry', 'Sulthan_Bazar', 'Chaderghat', 'Afzalgunj', 'Kachiguda', 'Nallakunta', 'Malakpet', 'Saidabad', 'Amberpet', 'Abids', 'Narayanguda', 'Begum_Bazar', 'Gandhinagar', 'Musheerabad', 'Chikkadpally', 'Nampally', 'Ramgopalpet', 'Saifabad', 'Banjara_Hills', 'Jubilee_Hills', 'Panjagutta', 'SR_Nagar', 'Asifnagar', 'Humayunnagar', 'Lunger_House', 'Golconda', 'Tappachabutra',
           'Shahinayathgunj', 'Habeebnagar', 'Kulsumpura', 'Mangalhat', 'Gopalapuram', 'Tukaramgate', 'Lalaguda', 'Chilakalguda', 'Mahankali', 'Marredupally', 'Karkhana', 'Charminar', 'Bahadurpura', 'Kamatipura', 'Hussaini_Alam', 'Kalapattar', 'Mirchowk', 'Dabeerpura', 'Moghalpura', 'Rein_Bazar', 'Falaknuma', 'Chandrayangutta', 'Shalibanda', 'Chatrinaka', 'Kanchanbagah', 'Bhavani_Nagar', 'Madannapet', 'Santoshnagar']
 
 
 # for i in police:
 police_user = {
-    "AuthorityID": "Lalaguda",
+    "PatrolID": "Lalaguda",
     "location": "Lalaguda",
     "password": "Lalaguda"
 }
 
-url = ["http://127.0.0.1:5000/upload_Data",
-       "http://127.0.0.1:5000/patrol/get_cases",
-       "http://127.0.0.1:5000/patrol/case_status"
+url = ["http://127.0.0.1:3000/upload_Data",
+       "http://127.0.0.1:3000/patrol/get_cases",
+       "http://127.0.0.1:3000/patrol/case_status",
+       "http://127.0.0.1:3000/signup",
+       "http://127.0.0.1:3000/login",
+       "http://127.0.0.1:3000/patrol/login"
        ]
 
-resp = requests.get(url[1],
-                    headers=header, json=police_user)
+# resp = requests.post(url[5],  headers=header, json=police_user)
+# #
 
+# print(resp.text)
+client = pymongo.MongoClient('mongodb://localhost:27017')
+db = client["secrep"]
 
-print(resp.text)
+pipeline = [
+    {
+        '$match': {
+            '_id': 'cf84303f-33a0-4273-9798-a5cc0dc1bde5'}
+    }
+]
+with db.patrol.watch(pipeline) as stream:
+    print("dfdgf")
+    for insert_change in stream:
+        print(insert_change)
+        resume_token = stream.resume_token
