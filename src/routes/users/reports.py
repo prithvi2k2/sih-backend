@@ -27,7 +27,7 @@ class STATUS(enum.Enum):
 file = Blueprint('file', __name__)
 
 
-@file.route("/upload_Data",  methods=['POST'])
+@file.route("/new-report",  methods=['POST'])
 @token_required
 @API_required
 def live(current_user):
@@ -128,7 +128,7 @@ def live(current_user):
         return make_response(jsonify(uploaded="fail", file_id=None, error=e), 403)
 
 
-@file.route("/Get_CaseInfo",  methods=['POST'])
+@file.route("/get-case-info",  methods=['POST'])
 @token_required
 @API_required
 def get_case(current_user):

@@ -81,7 +81,7 @@ def login():
         return make_response(jsonify(error=e), 401)
 
 
-@user.route('/change_wallet', methods=['POST'])
+@user.route('/change-wallet', methods=['POST'])
 @token_required
 @API_required
 def change_wallet(current_user):
@@ -121,7 +121,7 @@ def DelAccount(current_user):
         return make_response(jsonify(error=e), 401)
 
 
-@user.route('/Get_UserCases',  methods=['GET'])
+@user.route('/get-reports',  methods=['GET'])
 @token_required
 @API_required
 def Get_UserCases(current_user):

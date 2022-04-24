@@ -9,7 +9,7 @@ from Logic_objects import reward_crypto
 case = Blueprint('case', __name__)
 
 
-@case.route("/get_cases", methods=['GET'])
+@case.route("/get-cases", methods=['GET'])
 @token_required
 @API_required
 def get_cases(current_user):
@@ -25,7 +25,7 @@ def get_cases(current_user):
         return make_response(jsonify(error=e), 401)
 
 
-@case.route("/case_status", methods=['POST'])
+@case.route("/case-status", methods=['POST'])
 @token_required
 @API_required
 def case_status(current_authority):

@@ -6,7 +6,6 @@ from flask import Blueprint, request, jsonify, make_response
 from config import db
 import config
 from Logic_objects import location as loc
-import uuid
 
 
 admin = Blueprint('admin', __name__)
@@ -46,7 +45,7 @@ def login():
         return make_response(jsonify(error=e), 401)
 
 
-@admin.route("/get_cases")
+@admin.route("/get-cases")
 @token_required
 @API_required
 def getCases(*args):

@@ -55,7 +55,7 @@ def login():
         return make_response(jsonify(error=e), 401)
 
 
-@patrol.route("update_location", methods=['POST'])
+@patrol.route("update-location", methods=['POST'])
 @token_required
 @API_required
 def updateLoc(current_user):
