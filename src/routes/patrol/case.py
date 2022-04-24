@@ -15,11 +15,11 @@ case = Blueprint('case', __name__)
 def get_cases(current_user):
     if not current_user:
         return make_response(jsonify({
-            'message': 'unable to find user '
-        }), 400)
+            'message': 'unable to find user'
+        }), 404)
     try:
         # print()
-        return make_response(jsonify(current_user['case_ids']))
+        return make_response(jsonify(cases=current_user['case_ids']))
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
@@ -32,16 +32,16 @@ def case_status(current_authority):
     if not current_authority:
         return make_response(jsonify({
             'message': 'unable to find user '
-        }), 400)
+        }), 404)
     try:
         req = dict(request.json)
 
         case_id, status = req.get('caseID'), req.get('status')
         if not case_id or not status:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         if case_id not in current_authority['case_ids']:
-            return make_response(jsonify(error="Trying to update status of unassigned case"), 401)
+            return make_response(jsonify(error="Trying to update status of unassigned case"), 404)
 
         if status == "insufficient":
             db.reports.update_one({"_id": case_id}, {

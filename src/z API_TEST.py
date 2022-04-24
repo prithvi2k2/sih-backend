@@ -29,7 +29,7 @@ body = {
     "desc": "testing whole obj",
     "victims": "wdef",
     "time": str(datetime.now()),
-    "classified_ByUser": "titan_attack",
+    "type": "titan_attack",
     "location": "uppal"
 }
 

@@ -86,27 +86,24 @@ def login():
 @API_required
 def change_wallet(current_user):
     try:
-        data = dict(request.json)
-        new_addr = data.get("new_addr")
-        current_user["wallet_addr"] = new_addr
-        del current_user["password"]
+        req = dict(request.json)
+        new_addr = req.get("new_addr")
         db.users.update_one({"_id": current_user["_id"]}, {
             "$set": {
-                "wallet_addr": current_user["wallet_addr"]}
+                "wallet_addr": new_addr}
         })
-        return jsonify(current_user)
+        return (jsonify(message="Updated wallet address!"), 200)
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
 
 
 # default route to authenticate or for init after re-opening client
-@user.route('/init')
+@user.route('/init', methods=['GET'])
 @token_required
 @API_required
 def init(current_user):
-    print(current_user)
-    return "reyy"
+    return make_response(jsonify(message="Valid session"), 200)
 
 
 @user.route('/del-acct', methods=['DELETE'])

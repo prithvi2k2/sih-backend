@@ -41,10 +41,10 @@ def live(current_user):
     json = {
         desc : str : data,
         victims : str names,
-        ofenders : str names,
+        offenders : str names,
         location : str loc,
         time : object Datetime()
-        classified_ByUser : str crime_type
+        type : str crime_type
     }
 
     file = {
@@ -63,6 +63,7 @@ def live(current_user):
         desc, victims, ofenders, location, time, classified_ByUser, files = data.get("desc"), data.get(
             "victims"), data.get("ofenders"), data.get("location"), data.get("time"), data.get("classified_ByUser"), data.get("files")
         # print(desc, victims, ofenders, location, time)
+
         if not desc or not location or not time:
             return make_response(jsonify(error="No Data payload!!"), 401)
 
@@ -84,7 +85,7 @@ def live(current_user):
         location = loc.Location(location)
         print(location.__repr__(),  "\n\n")
         if not location.__repr__():
-            return make_response(jsonify(error="Cannot find the location specified!!"))
+            return make_response(jsonify(error="Cannot find the location specified!!"), 404)
 
         # finding nearest police station
         authority_assigned = db.patrol.find(
@@ -95,12 +96,12 @@ def live(current_user):
             "_id": crime_id,
             "desc": desc,
             "victims": victims,
-            "ofenders": ofenders,
-            "location": location.__repr__(),
+            "offenders": offenders,
+            "location": None,
             "time": time,
             "crime_files": files,
             "crime_score": None,
-            "classified_ByUser": classified_ByUser,
+            "type": type,
             "classified_model": None,
             "faces_bymodel": [],
             "Status": "Assigned",
@@ -121,7 +122,7 @@ def live(current_user):
         task = db.patrol.update_one({"_id": authority_assigned[0]["_id"]}, {
             "$set": {"case_ids": cases}})
 
-        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"]), 200)
+        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"]), 201)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
