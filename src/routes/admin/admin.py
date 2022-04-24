@@ -70,7 +70,7 @@ def signup(_):
         location = req.get("location")
         pw = req.get("password")
         if not PatrolID or not pw or not location:
-            return make_response(jsonify(error="No Data payload!!"), 401)
+            return make_response(jsonify(error="No Data payload!!"), 400)
 
         user_obj = db.patrol.find_one({"_id": PatrolID})
         if user_obj != None:
@@ -78,7 +78,7 @@ def signup(_):
 
         location = loc.Location(location)
         if not location.__repr__():
-            return make_response(jsonify(error="Cannot find the location specifies!!"))
+            return make_response(jsonify(error="Cannot find the location specified!!"), 404)
         auth_obj = {
             "_id": PatrolID,
             "password": Phash(pw),

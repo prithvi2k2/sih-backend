@@ -1,4 +1,3 @@
-import uuid
 import jwt
 from config import db
 import config

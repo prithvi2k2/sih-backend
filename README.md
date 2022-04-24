@@ -29,6 +29,8 @@ Example endpoints to send requests:
     - [Authentication and account settings](#authentication-and-account-settings-1)
     - [Managing and handling reports](#managing-reports)
 - [Admin api](#admin-api)
+    - [Authentication and retrieval of data](#authentication-and-retrieval-of-data)
+    - [Manage patrol](#manage-patrol)
 
 ------------------------------------------------------------------------------------------
 
@@ -322,38 +324,85 @@ Example endpoints to send requests:
 
 > Prefix - `/admin`
 
-<details>
-<summary><code>POST</code> <code><b>/login</b></code> <code>(Authenticate admin)</code></summary>
+- #### Authentication and retrieval of data
 
-##### Request Parameters
+    <details>
+    <summary><code>POST</code> <code><b>/login</b></code> <code>(Authenticate admin)</code></summary>
 
-> | name     |  required | data type | description             |
-> |----------|-----------|-----------|-------------------------|
-> | user     |  YES      | string    | Unique admin id  |
-> | password |  YES      | string    | N/A  |
+    ##### Request Parameters
 
-##### Responses
+    > | name     |  required | data type | description             |
+    > |----------|-----------|-----------|-------------------------|
+    > | user     |  YES      | string    | Unique admin id  |
+    > | password |  YES      | string    | N/A  |
 
-> | http code     | response                                                 |
-> |---------------|----------------------------------------------------------|
-> | `200`         | `{"login": true, "token": JWT, "user_exists": true}`     |
-> | `400`         | `{"error": "No Data payload!!"}`                         |
-> | `401`         | `{"login": false, "user_exists": false}`                 |
-> | `401`         | `{"login": false, "user_exists": true}`                  |
+    ##### Responses
+
+    > | http code     | response                                                 |
+    > |---------------|----------------------------------------------------------|
+    > | `200`         | `{"login": true, "token": JWT, "user_exists": true}`     |
+    > | `400`         | `{"error": "No Data payload!!"}`                         |
+    > | `401`         | `{"login": false, "user_exists": false}`                 |
+    > | `401`         | `{"login": false, "user_exists": true}`                  |
 
 
-</details>
+    </details>
 
-<details>
-<summary><code>GET</code> <code><b>/get-cases</b></code> <code>(Retrieve cases)</code></summary>
+    <details>
+    <summary><code>GET</code> <code><b>/get-cases</b></code> <code>(Retrieve cases)</code></summary>
 
-*** JWT required in request HEADERS
+    *** JWT required in request HEADERS
 
-##### Responses
+    ##### Responses
 
-> | http code     | response                                                 |
-> |---------------|----------------------------------------------------------|
-> | `200`         | `{"cases" : LIST_of_all_Cases}`     |
-> | `404`         | `{"error": ERROR_MSG }`                         |
+    > | http code     | response                                                 |
+    > |---------------|----------------------------------------------------------|
+    > | `200`         | `{"cases" : LIST_of_all_Cases}`     |
+    > | `404`         | `{"error": ERROR_MSG }`                         |
 
-</details>
+    </details>
+
+- #### Manage Patrol
+    
+    <details>
+    <summary><code>POST</code> <code><b>/add-patrol</b></code> <code>(Register patrol/authority/PoliceStation)</code></summary>
+
+    ##### Request Parameters
+
+    > | name     |  required | data type | description             |
+    > |----------|-----------|-----------|-------------------------|
+    > | PatrolID |  YES      | string    | Unique patrol id  |
+    > | password |  YES      | string    | N/A  |
+    > | location |  YES      | string    | In form of text or co-ordinates |
+
+    ##### Responses
+
+    > | http code | response                                            |
+    > |-----------|-----------------------------------------------------|
+    > | `201`     | `{"user_exists": false}` => Successfully created |
+    > | `409`     | `{"user_exists": true}`  => Already exists, Conflict |
+    > | `404`     | `{"error":"Cannot find the location specified!!"}` |
+    > | `400`     | `{"error": "No Data payload!!"}`                   |
+
+
+    </details>
+
+    <details>
+    <summary><code>DELETE</code> <code><b>/del-patrol</b></code> <code>(Remove patrol/authority/PoliceStation)</code></summary>
+
+    ##### Request Parameters
+
+    > | name     |  required | data type | description             |
+    > |----------|-----------|-----------|-------------------------|
+    > | PatrolID |  YES      | string    | Unique patrol id  |
+
+    ##### Responses
+
+    > | http code | response                                            |
+    > |-----------|-----------------------------------------------------|
+    > | `200`     | `{"accountDel": true}` => Successfully created |
+    > | `404`     | `{"error":"PatrolID not found"}` |
+    > | `400`     | `{"error": ERROR_MSG}`                   |
+
+
+    </details>
