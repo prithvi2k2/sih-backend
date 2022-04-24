@@ -1,26 +1,19 @@
 from argparse import Namespace
 from config import socket, db
-import config
 from flask_socketio import send, emit, ConnectionRefusedError
 from flask import Blueprint, request
-from functools import wraps
 from Logic_objects.location import Location
-import jwt
-import time
-import pymongo
-import logging
-from routes.patrol import Special_permissionAuth
+
+
 admin_sockets = Blueprint('admin_sockets', __name__)
 
 
 @socket.on('connect')
-@Special_permissionAuth
 def test_connect():
     print('Broo connection established 🤝 🤝')
 
 
 @socket.on('Get_OnLocation')
-@Special_permissionAuth
 def handleMessage(msg):
     """
     Format 
@@ -39,7 +32,6 @@ def handleMessage(msg):
 
 
 @socket.on('Get_OnStatus')
-@Special_permissionAuth
 def Get_OnStatus(msg):
     """
     Format 
@@ -58,7 +50,6 @@ def Get_OnStatus(msg):
 
 
 @socket.on('Get_OnScore')
-@Special_permissionAuth
 def Get_OnScore(msg):
     """
     PENDING AFTER ML
@@ -77,7 +68,6 @@ def Get_OnScore(msg):
 
 
 @socket.on('Get_Onclassified')
-@Special_permissionAuth
 def Get_Onclassified(msg):
     """
     PENDING AFTER FRONTEND AND ML
@@ -94,6 +84,5 @@ def Get_Onclassified(msg):
 
 
 @ socket.on('disconnet')
-@Special_permissionAuth
 def test_connect():
     print('Broooo 💔')

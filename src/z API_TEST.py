@@ -54,7 +54,7 @@ police = ['Begumpet', 'Bowenpally', 'Bollaram', 'Trimulgherry', 'Sulthan_Bazar',
 
 # for i in police:
 police_user = {
-    "AuthorityID": "Lalaguda",
+    "PatrolID": "Lalaguda",
     "location": "Lalaguda",
     "password": "Lalaguda"
 }
