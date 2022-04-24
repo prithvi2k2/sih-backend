@@ -40,14 +40,3 @@ def token_required(f):
         # returns the current logged in users context to the routes
         return f(current_user, *args, **kwargs)
     return decorated
-
-def Special_permissionAuth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        '''
-        stuff here is validated and functions using this 
-        decorater are not accessed bby anyone unless admin authority 
-        basically to register all police ids
-        '''
-        return f(*args, **kwargs)
-    return decorated

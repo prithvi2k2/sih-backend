@@ -58,23 +58,30 @@ def live(current_user):
 
     try:
         crime_id = str(uuid.uuid4())
-        payload = dict(request.files)
-        data = json.load(payload["data"])
-        del payload["data"]
-        desc, victims, offenders, location, time, type = data.get("desc"), data.get(
-            "victims"), data.get("offenders"), data.get("location"), data.get("time"), data.get("type")
-        # print(desc, victims, offenders, location, time)
+        data = dict(request.json)
+
+        desc, victims, ofenders, location, time, classified_ByUser, files = data.get("desc"), data.get(
+            "victims"), data.get("ofenders"), data.get("location"), data.get("time"), data.get("classified_ByUser"), data.get("files")
+        # print(desc, victims, ofenders, location, time)
+
         if not desc or not location or not time:
             return make_response(jsonify(error="No Data payload!!"), 401)
 
-        files = []
-        for v in payload.values():
-            file_type = mimetypes.guess_type(v.filename)[0].split("/")[0]
-            file = v
-            save_file = file_server.File_server(file_type)
-            filename = save_file.save_file(v)
-            if filename:
-                files.append([filename, file_type])
+        file = []
+        for k, v in files.items():
+            file.append([k, v])
+
+        """
+        if files in data uncomment and use this
+        """
+        # for v in payload.values():
+        #     file_type = mimetypes.guess_type(v.filename)[0].split("/")[0]
+        #     file = v
+        #     save_file = file_server.File_server(file_type)
+        #     filename = save_file.save_file(v)
+        #     if filename:
+        #         files.append([filename, file_type])
+
         location = loc.Location(location)
         print(location.__repr__(),  "\n\n")
         if not location.__repr__():

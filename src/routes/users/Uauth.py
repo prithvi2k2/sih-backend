@@ -1,3 +1,4 @@
+
 import jwt
 from config import db
 import config
@@ -103,6 +104,18 @@ def change_wallet(current_user):
 @API_required
 def init(current_user):
     return make_response(jsonify(message="Valid session"), 200)
+
+
+@user.route('/del-acct', methods=['DELETE'])
+@token_required
+@API_required
+def DelAccount(current_user):
+    try:
+        db.users.delete_one({"_id": current_user['_id']})
+        return make_response(jsonify(accountDel=True))
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(error=e), 401)
 
 
 @user.route('/get-reports',  methods=['GET'])
