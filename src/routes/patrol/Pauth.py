@@ -117,7 +117,7 @@ def updateLoc(current_user):
         return make_response(jsonify(error=e), 401)
 
 
-@patrol.route("DELpolice", methods=['DELETE'])
+@patrol.route("del-police", methods=['DELETE'])
 @token_required
 @API_required
 @Special_permissionAuth

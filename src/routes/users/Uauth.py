@@ -109,7 +109,7 @@ def init(current_user):
     return "reyy"
 
 
-@user.route('/DelAccount', methods=['DELETE'])
+@user.route('/del-acct', methods=['DELETE'])
 @token_required
 @API_required
 def DelAccount(current_user):

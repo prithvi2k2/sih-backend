@@ -47,7 +47,7 @@ def login():
 @admin.route("/get_cases")
 @token_required
 @API_required
-def getCases():
+def getCases(*args):
     try:
         reports = list(db.reports.find())
         return make_response(jsonify(reports), 200)

@@ -118,7 +118,6 @@ def live(current_user):
 
         cases = authority_assigned[0]['case_ids']
         cases.append(crime_id)
-        # db.report.insert_one(crime_obj)
         task = db.patrol.update_one({"_id": authority_assigned[0]["_id"]}, {
             "$set": {"case_ids": cases}})
 
