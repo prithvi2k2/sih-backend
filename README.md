@@ -3,7 +3,7 @@
 
 Clients need a valid API_Key to access the API, and also valid JsonWebTokens for
 validating api calls after login. So each request is expected to have following HEADERS:
-> ```
+> ```json
 >  "X-API-Key" :  API_KEY (mandatory)
 >  "x-access-token" : JWT_Token (only required when logged in)
 > ```
@@ -12,6 +12,14 @@ validating api calls after login. So each request is expected to have following 
 
 The API deals with JSON content (`content-type: application/json`) mostly, 
 any exceptions will be mentioned wherever needed
+
+Base API url : https://secrep.herokuapp.com/
+
+Example endpoints to send requests:
+    
+    Citizen app => https://secrep.herokuapp.com/signup
+    Patrol app => https://secrep.herokuapp.com/patrol/login
+    Admin app => https://secrep.herokuapp.com/admin/login
 
 ## CONTENTS
 - [Citizens App api](#citizens-app-api)
@@ -321,7 +329,7 @@ any exceptions will be mentioned wherever needed
 
 > | name     |  required | data type | description             |
 > |----------|-----------|-----------|-------------------------|
-> | user     |  YES      | string    | Unique id of authority  |
+> | user     |  YES      | string    | Unique admin id  |
 > | password |  YES      | string    | N/A  |
 
 ##### Responses
