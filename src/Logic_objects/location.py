@@ -10,6 +10,7 @@ class Location:
                 self.latitude = self.location.latitude
                 self.longitude = self.location.longitude
         else:
+            self.location=True
             self.latitude = param[0]
             self.longitude = param[1]
 
