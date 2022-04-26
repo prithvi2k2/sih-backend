@@ -99,7 +99,7 @@ def live(current_user):
             "offenders": ofenders,
             "location": None,
             "time": time,
-            "crime_files": files,
+            "crime_files": file,
             "crime_score": None,
             "type": type,
             "classified_model": None,
