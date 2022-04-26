@@ -199,7 +199,7 @@ Example endpoints to send requests:
         "time": time,
         "crime_files": files,
         "crime_score": None,
-        "classified_ByUser": classified_ByUser,
+        "type": type,
         "classified_model": None,
         "faces_bymodel": [],
         "Status": "Assigned",

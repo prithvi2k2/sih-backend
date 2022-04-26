@@ -60,8 +60,8 @@ def live(current_user):
         crime_id = str(uuid.uuid4())
         data = dict(request.json)
 
-        desc, victims, ofenders, location, time, classified_ByUser, files = data.get("desc"), data.get(
-            "victims"), data.get("ofenders"), data.get("location"), data.get("time"), data.get("classified_ByUser"), data.get("files")
+        desc, victims, offenders, location, time, type, files = data.get("desc"), data.get(
+            "victims"), data.get("offenders"), data.get("location"), data.get("time"), data.get("type"), data.get("files")
         # print(desc, victims, ofenders, location, time)
 
         if not desc or not location or not time:
