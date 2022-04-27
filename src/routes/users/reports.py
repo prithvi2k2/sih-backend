@@ -101,7 +101,6 @@ def live(current_user):
             "time": time,
             "crime_files": file,
             "crime_score": None,
-            "type": type,
             "classified_model": None,
             "faces_bymodel": [],
             "Status": "Assigned",
