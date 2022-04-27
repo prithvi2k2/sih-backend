@@ -97,7 +97,7 @@ def live(current_user):
             "desc": desc,
             "victims": victims,
             "offenders": ofenders,
-            "location": None,
+            "location": location.__repr__(),
             "time": time,
             "crime_files": file,
             "crime_score": None,
