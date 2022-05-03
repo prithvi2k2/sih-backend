@@ -191,7 +191,7 @@ Example endpoints to send requests:
 
     ```
     {
-        "_id": crime_id,
+        "_id": case_id,
         "desc": desc,
         "victims": victims,
         "ofenders": ofenders,
@@ -358,8 +358,27 @@ Example endpoints to send requests:
     > | http code     | response                                                 |
     > |---------------|----------------------------------------------------------|
     > | `200`         | `{"cases" : LIST_of_all_Cases}`     |
-    > | `404`         | `{"error": ERROR_MSG }`                         |
+    > | `404`         | `{"error": ERROR_MSG }`            |
 
+    Sample case iten:
+    ```
+    {
+        "_id": case_id,
+        "desc": desc,
+        "victims": victims,
+        "ofenders": ofenders,
+        "location": None,
+        "time": time,
+        "crime_files": files,
+        "crime_score": None,
+        "classified_ByUser": classified_ByUser,
+        "classified_model": None,
+        "faces_bymodel": [],
+        "Status": "Assigned",
+        "wallet_addr": current_user["wallet_addr"],
+        "authority_assigned": authority_assigned[0]["_id"]
+    }
+    ```
     </details>
 
 - #### Manage Patrol
