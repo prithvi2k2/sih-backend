@@ -8,9 +8,10 @@ We use 'waitress' or 'gunicorn' WSGI for production
 from flask import Flask
 import config
 from flask_socketio import SocketIO
-
+from flask_cors import CORS
 
 def create_app():
+
     app = Flask(__name__)
 
     # Establish connection to MongoDB Cluster
@@ -49,6 +50,9 @@ def create_app():
     # app.register_blueprint(patrol_sockets)
     app.register_blueprint(admin_sockets)
 
+    # Enable CORS
+    CORS(app)
+    
     return app
 
 

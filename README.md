@@ -382,7 +382,9 @@ Example endpoints to send requests:
     </details>
 
 - #### Manage Patrol
-    
+
+    *** Requires JWT in request HEADERS for authorization
+
     <details>
     <summary><code>POST</code> <code><b>/add-patrol</b></code> <code>(Register patrol/authority/PoliceStation)</code></summary>
 
