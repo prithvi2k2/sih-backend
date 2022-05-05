@@ -230,7 +230,7 @@ Example endpoints to send requests:
 
     > | name      |  required    | data type               | description                                                           |
     > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
-    > | AuthorityID      |  YES    | string   | Unique id of authority  |
+    > | PatrolID      |  YES    | string   | Unique id of authority/Patrol  |
     > | password      |  YES    | string   | N/A  |
     > | location    | YES | string | Current location of Patrol |
 

@@ -20,7 +20,7 @@ def token_required(f):
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
-            raise ConnectionRefusedError("yo")
+            raise ConnectionRefusedError("Auth Token missing")
 
         # jwt validation
         try:
@@ -28,11 +28,11 @@ def token_required(f):
                 data = jwt.decode(
                     token, config.SECRET_KEY, algorithms=["HS256"])
             except Exception as e:
-                raise ConnectionRefusedError("yo")
+                raise ConnectionRefusedError("Token tampered")
             current_user = db.patrol.find_one({"_id": data["public_id"]})
             # print(current_user)
             if not current_user:
-                raise ConnectionRefusedError("yo")
+                raise ConnectionRefusedError("User not found")
         except Exception as e:
             print(e,  e.__traceback__.tb_lineno)
             raise ConnectionRefusedError("errror ")
@@ -49,7 +49,7 @@ def test_connect(current_user):
     if current_user is None:
         raise ConnectionRefusedError("errror ")
     else:
-        print('Broo connection established 🤝')
+        print('Patrol socket connection established 🤝')
 
 
 @socket.on('Get_cases',  namespace='/patrol')
@@ -94,7 +94,7 @@ def handleMessage(current_user, msg):
        # pass
 
 
-@ socket.on('disconnet',  namespace='/patrol')
+@socket.on('disconnect',  namespace='/patrol')
 @token_required
 def test_connect(current_user):
-    print('Broooo 💔')
+    print('Broooo 💔 - Patrol socket closed')

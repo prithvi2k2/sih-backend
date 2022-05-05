@@ -10,6 +10,7 @@ import config
 from flask_socketio import SocketIO
 from flask_cors import CORS
 
+
 def create_app():
 
     app = Flask(__name__)
@@ -23,7 +24,7 @@ def create_app():
         config.db = client["secrep"]
         config.db.patrol.create_index([("location", GEO2D)])
         config.db.reports.create_index([("location", GEO2D)])
-        print(config.db)
+        # print(config.db)
         print(' * Established connection to DB *')
     except Exception as ex:
         print('Can not connect to DB=>'+str(ex))
@@ -37,7 +38,7 @@ def create_app():
     from routes.patrol import Pauth
     from routes.patrol import case
     from routes.admin import admin
-    # from sockets.patrol import patrol_sockets
+    from sockets.patrol import patrol_sockets
     from sockets.admin import admin_sockets
 
     # Register Blueprints
@@ -47,12 +48,12 @@ def create_app():
     app.register_blueprint(Pauth.patrol, url_prefix='/patrol')
     app.register_blueprint(case.case, url_prefix='/patrol')
     app.register_blueprint(admin.admin, url_prefix='/admin')
-    # app.register_blueprint(patrol_sockets)
+    app.register_blueprint(patrol_sockets)
     app.register_blueprint(admin_sockets)
 
     # Enable CORS
     CORS(app)
-    
+
     return app
 
 
