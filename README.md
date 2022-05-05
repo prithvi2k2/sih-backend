@@ -360,7 +360,7 @@ Example endpoints to send requests:
     > | `200`         | `{"cases" : LIST_of_all_Cases}`     |
     > | `404`         | `{"error": ERROR_MSG }`            |
 
-    Sample case iten:
+    Sample case item:
     ```
     {
         "_id": case_id,
