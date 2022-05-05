@@ -8,12 +8,12 @@ from Logic_objects.location import Location
 admin_sockets = Blueprint('admin_sockets', __name__)
 
 
-@socket.on('connect')
+@socket.on('connect', namespace='/admin')
 def test_connect():
-    print('Broo connection established 🤝 🤝')
+    print('Admin socket connection established 🤝 🤝')
 
 
-@socket.on('Get_OnLocation')
+@socket.on('Get_OnLocation', namespace='/admin')
 def handleMessage(msg):
     """
     Format 
@@ -31,7 +31,7 @@ def handleMessage(msg):
         emit('CasesUpadte', results)
 
 
-@socket.on('Get_OnStatus')
+@socket.on('Get_OnStatus', namespace='/admin')
 def Get_OnStatus(msg):
     """
     Format 
@@ -49,7 +49,7 @@ def Get_OnStatus(msg):
     print(msg)
 
 
-@socket.on('Get_OnScore')
+@socket.on('Get_OnScore', namespace='/admin')
 def Get_OnScore(msg):
     """
     PENDING AFTER ML
@@ -67,7 +67,7 @@ def Get_OnScore(msg):
     print(msg)
 
 
-@socket.on('Get_Onclassified')
+@socket.on('Get_OnClassified', namespace='/admin')
 def Get_Onclassified(msg):
     """
     PENDING AFTER FRONTEND AND ML
@@ -83,6 +83,6 @@ def Get_Onclassified(msg):
     print(msg)
 
 
-@ socket.on('disconnet')
+@socket.on('disconnect', namespace='/admin')
 def test_connect():
-    print('Broooo 💔')
+    print('Broooo 💔 - Admin socket closed')

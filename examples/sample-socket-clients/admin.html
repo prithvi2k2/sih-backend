@@ -1,0 +1,39 @@
+<html>
+
+<head>
+    <title>Test client</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+          "imports": {
+            "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+          }
+        }
+      </script>
+
+    <script type="module">
+        import { io } from "socket.io-client";
+        // Place Base_API_URL instead of 127.0.0.1:3000/
+        const socket = io("http://127.0.0.1:3000/admin", {
+            reconnectionDelayMax: 10000,
+            extraHeaders: {
+                // Place JWT token below for proper authorization
+                "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQiOiJzb21lUFNTTkciLCJleHAiOjE2NTI5NzY2Mzd9.xiTdGrsd6Qop3hbAGIuxzBWXjwoXsiLORYpSZtGmLN8"
+            }
+        });
+
+        socket.on('connect', function () {
+            socket.emit('my event', { data: 'I\'m connected!' });
+        });
+
+
+    </script>
+    <ul id="messages"></ul>
+    <input type="text" id="myMessage">
+    <button id="sendbutton">Get Cases</button>
+</body>
+
+</html>

@@ -191,7 +191,7 @@ Example endpoints to send requests:
 
     ```
     {
-        "_id": crime_id,
+        "_id": case_id,
         "desc": desc,
         "victims": victims,
         "ofenders": ofenders,
@@ -230,7 +230,7 @@ Example endpoints to send requests:
 
     > | name      |  required    | data type               | description                                                           |
     > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
-    > | AuthorityID      |  YES    | string   | Unique id of authority  |
+    > | PatrolID      |  YES    | string   | Unique id of authority/Patrol  |
     > | password      |  YES    | string   | N/A  |
     > | location    | YES | string | Current location of Patrol |
 
@@ -358,12 +358,33 @@ Example endpoints to send requests:
     > | http code     | response                                                 |
     > |---------------|----------------------------------------------------------|
     > | `200`         | `{"cases" : LIST_of_all_Cases}`     |
-    > | `404`         | `{"error": ERROR_MSG }`                         |
+    > | `404`         | `{"error": ERROR_MSG }`            |
 
+    Sample case item:
+    ```
+    {
+        "_id": case_id,
+        "desc": desc,
+        "victims": victims,
+        "ofenders": ofenders,
+        "location": None,
+        "time": time,
+        "crime_files": files,
+        "crime_score": None,
+        "classified_ByUser": classified_ByUser,
+        "classified_model": None,
+        "faces_bymodel": [],
+        "Status": "Assigned",
+        "wallet_addr": current_user["wallet_addr"],
+        "authority_assigned": authority_assigned[0]["_id"]
+    }
+    ```
     </details>
 
 - #### Manage Patrol
-    
+
+    *** Requires JWT in request HEADERS for authorization
+
     <details>
     <summary><code>POST</code> <code><b>/add-patrol</b></code> <code>(Register patrol/authority/PoliceStation)</code></summary>
 
