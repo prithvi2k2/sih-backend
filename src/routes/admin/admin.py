@@ -61,7 +61,7 @@ MANAGE PATROL
 '''
 
 @admin.route("/add-patrol",  methods=['POST'])
-@token_required
+
 @API_required
 def signup(_):
     try:
