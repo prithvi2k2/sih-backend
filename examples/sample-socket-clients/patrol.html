@@ -1,0 +1,52 @@
+<html>
+
+<head>
+    <title>Patrol Test client</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+          "imports": {
+            "socket.io-client": "https://cdn.socket.io/4.4.1/socket.io.esm.min.js"
+          }
+        }
+      </script>
+
+    <script type="module">
+        import { io } from "socket.io-client";
+        // Place Base_API_URL instead of 127.0.0.1:3000/
+        const socket = io("http://127.0.0.1:3000/patrol", {
+            reconnectionDelayMax: 10000,
+            extraHeaders: {
+                // Place JWT token below for proper authorization
+                "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQiOiJzb21lUFNTTkciLCJleHAiOjE2NTQ3Nzc0NDV9.KK82UD7SF0P7GLvGg8JHi8JL6pxw-L6iJLL_iY15lA8"
+            }
+        });
+
+
+        socket.on('CaseUpdate', changes=>{
+            let id = changes._id
+            let doc = changes.doc
+            let updatedCaseIds = doc.case_ids
+            console.log(updatedCaseIds)
+        })
+
+        // Get Cases initially from DB
+        socket.on('static-cases', caseIds=>{
+            console.log(caseIds)
+        })
+
+        const get = document.querySelector("#getC")
+        get.addEventListener('click', ()=>{
+            socket.emit('Get_cases')
+        })
+        
+    </script>
+    <ul id="messages"></ul>
+    <input type="text" id="myMessage">
+    <button id="getC">Get Cases</button>
+</body>
+
+</html>

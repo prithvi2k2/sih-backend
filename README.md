@@ -4,16 +4,16 @@
 Clients need a valid API_Key to access the API, and also valid JsonWebTokens for
 validating api calls after login. So each request is expected to have following HEADERS:
 > ```json
->  "X-API-Key" :  API_KEY (mandatory)
+>  "X-API-Key" :  *API_KEY* (mandatory)
 >  "x-access-token" : JWT_Token (only required when logged in)
+>  "Content-Type" : "application/json"
 > ```
 
-* JWT is used for authorization of requests after login
+* NOTE : JWT is required for authorization of requests only after login
 
-The API deals with JSON content (`content-type: application/json`) mostly, 
-any exceptions will be mentioned wherever needed
 
-Base API url : https://secrep.herokuapp.com/
+### Base API url : https://secrep.herokuapp.com/
+
 
 Example endpoints to send requests:
     

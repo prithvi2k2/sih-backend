@@ -83,7 +83,8 @@ def signup(_):
             "_id": PatrolID,
             "password": Phash(pw),
             "location": location.__repr__(),
-            "case_ids": []
+            "case_ids": [],
+            "isOnline": 0
         }
 
         db.patrol.insert_one(auth_obj)

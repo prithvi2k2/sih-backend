@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Test client</title>
+    <title>Admin Test client</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 </head>
 
@@ -21,19 +21,53 @@
             reconnectionDelayMax: 10000,
             extraHeaders: {
                 // Place JWT token below for proper authorization
-                "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQiOiJzb21lUFNTTkciLCJleHAiOjE2NTI5NzY2Mzd9.xiTdGrsd6Qop3hbAGIuxzBWXjwoXsiLORYpSZtGmLN8"
+                "x-access-token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiJhZG1pbiIsImV4cCI6MTY1NDc4NjUyMX0.BWrDy55uz7PnD6xKpSlK3BpNe1bBvERS-br9o1wtxbU"
             }
         });
 
-        socket.on('connect', function () {
-            socket.emit('my event', { data: 'I\'m connected!' });
-        });
 
+        socket.on('PatrolUpdate', changes=>{
+            let id = changes._id
+            let doc = changes.doc
+            let updatedCaseIds = doc.case_ids
+            console.log(updatedCaseIds)
+        })
 
+        socket.on('CaseUpdate', changes => {
+            let id = changes._id
+            let changedDoc = changes.doc
+            console.log(changedDoc)
+        })
+
+        // Get Cases initially from DB
+        socket.on('static-cases', caseIds=>{
+            console.log(caseIds)
+        })
+
+        socket.on('static-patrol', patrols => {
+            console.log(patrols)
+        })
+        
+        const getC = document.querySelector("#getC")
+        getC.addEventListener('click', ()=>{
+            socket.emit('Get_cases')
+        })
+
+        const getP = document.querySelector("#getP")
+        getP.addEventListener('click', ()=>{
+            socket.emit('Get_patrols')
+        })
+        
     </script>
     <ul id="messages"></ul>
-    <input type="text" id="myMessage">
-    <button id="sendbutton">Get Cases</button>
+    
+    <!-- <input type="text" id="myMessage"> -->
+    <button id="getC">Get Cases</button>
+    
+    <br>
+
+    <button id="getP">Get Patrols</button>
+
 </body>
 
 </html>
