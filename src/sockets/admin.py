@@ -1,4 +1,7 @@
 from argparse import Namespace
+from functools import wraps
+import config
+import jwt
 from config import socket, db
 from flask_socketio import send, emit, ConnectionRefusedError
 from flask import Blueprint, request
@@ -7,13 +10,62 @@ from Logic_objects.location import Location
 
 admin_sockets = Blueprint('admin_sockets', __name__)
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+
+        token = None
+
+        # jwt is passed in the request header
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            raise ConnectionRefusedError("Auth Token missing")
+
+        # jwt validation
+        try:
+            try:
+                data = jwt.decode(
+                    token, config.SECRET_KEY, algorithms=["HS256"])
+            except Exception as e:
+                raise ConnectionRefusedError("Token tampered")
+            current_user = db.admin.find_one({"_id": data["_id"]})
+            # print(current_user)
+            if not current_user:
+                raise ConnectionRefusedError("User not found")
+        except Exception as e:
+            print(e,  e.__traceback__.tb_lineno)
+            raise ConnectionRefusedError("errror ")
+
+        # returns the current logged in users context to the routes
+        return f(*args, **kwargs)
+    return decorated
+
 
 @socket.on('connect', namespace='/admin')
+@token_required
 def test_connect():
     print('Admin socket connection established 🤝 🤝')
 
 
+@socket.on('Get_cases',  namespace='/admin')
+@token_required
+def handleMessage():
+    case_ids = [ids for ids in db.reports.find({}, {"_id" : 1})]
+    emit('static-cases', case_ids)
+
+
+@socket.on('Get_patrols',  namespace='/admin')
+@token_required
+def handleMessage():
+    patrols = [patrol for patrol in db.patrol.find({})]
+    for patrol in range(len(patrols)):
+        del patrols[patrol]['password']
+    emit('static-patrol', patrols)
+
+
 @socket.on('Get_OnLocation', namespace='/admin')
+@token_required
 def handleMessage(msg):
     """
     Format 
@@ -32,6 +84,7 @@ def handleMessage(msg):
 
 
 @socket.on('Get_OnStatus', namespace='/admin')
+@token_required
 def Get_OnStatus(msg):
     """
     Format 
@@ -50,6 +103,7 @@ def Get_OnStatus(msg):
 
 
 @socket.on('Get_OnScore', namespace='/admin')
+@token_required
 def Get_OnScore(msg):
     """
     PENDING AFTER ML
@@ -68,6 +122,7 @@ def Get_OnScore(msg):
 
 
 @socket.on('Get_OnClassified', namespace='/admin')
+@token_required
 def Get_Onclassified(msg):
     """
     PENDING AFTER FRONTEND AND ML
@@ -83,6 +138,11 @@ def Get_Onclassified(msg):
     print(msg)
 
 
+@socket.on_error(namespace='/admin')
+def error_handler(e):
+    print('/admin SocketIO error : ' + str(e))
+
 @socket.on('disconnect', namespace='/admin')
+@token_required
 def test_connect():
     print('Broooo 💔 - Admin socket closed')

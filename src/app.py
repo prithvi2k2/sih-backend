@@ -25,9 +25,20 @@ def create_app():
         config.db.patrol.create_index([("location", GEO2D)])
         config.db.reports.create_index([("location", GEO2D)])
         # print(config.db)
-        print(' * Established connection to DB *')
+        print(' >>> Established connection to DB')
     except Exception as ex:
         print('Can not connect to DB=>'+str(ex))
+
+    # Init and clean-up DB for usage with sockets
+    try:
+        config.db.patrol.update_many({},
+            {'$set' : {'isOnline' : 0}})
+        config.db.admin.update_many({},
+            {'$set' : {'isOnline' : 0}})
+        print(' >>> Initialised DB')
+    except Exception as ex:
+        print('Can not connect to DB=>'+str(ex))
+
 
     # Config websocket with app, also enables CORS
     config.socket = SocketIO(app, cors_allowed_origins='*')
@@ -35,12 +46,11 @@ def create_app():
     # Import blueprints
     from routes import test
     from routes.users import Uauth, reports
-    from routes.patrol import Pauth
-    from routes.patrol import case
+    from routes.patrol import Pauth, case
     from routes.admin import admin
     from sockets.patrol import patrol_sockets
     from sockets.admin import admin_sockets
-
+    from sockets.triggers import triggers
     # Register Blueprints
     app.register_blueprint(test.test)
     app.register_blueprint(Uauth.user)
@@ -50,6 +60,7 @@ def create_app():
     app.register_blueprint(admin.admin, url_prefix='/admin')
     app.register_blueprint(patrol_sockets)
     app.register_blueprint(admin_sockets)
+    app.register_blueprint(triggers, url_prefix='/triggers')
 
     # Enable CORS
     CORS(app)
