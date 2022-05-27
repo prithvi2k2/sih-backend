@@ -46,7 +46,7 @@ def patrolUpdateCases():
 @API_required
 def adminUpdateCases():
     '''
-    Triggered whenever 'case_ids' field of REPORTS collection is UPDATEd
+    Triggered whenever REPORTS collection undergoes following operations
     either cases `added/inserted` or `removed/deleted` or `modified/updated`
     '''
     changes = dict(request.json)
