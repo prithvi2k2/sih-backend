@@ -204,7 +204,6 @@ Example endpoints to send requests:
         "classified_model": None,
         "faces_bymodel": [],
         "Status": "Assigned",
-        "wallet_addr": current_user["wallet_addr"],
         "authority_assigned": authority_assigned[0]["_id"]
     }
     ```
@@ -280,6 +279,48 @@ Example endpoints to send requests:
     > | `404`         | `{"message": "unable to find user"}` |
 
     </details>
+
+
+    <details>
+    <summary><code>POST</code> <code><b>/get-case-info</b></code> <code>(Returns details of a particular case)</code></summary>
+
+
+    ##### Request Parameters
+
+    > | name      |  required    | data type               | description                                                           |
+    > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
+    > | case_id     | YES     | string   | Obtained from /get-reports  |
+
+    ##### Responses
+
+    > | http code     | response                                                            |
+    > |---------------|---------------------------------------------------------------------|
+    > | `200`         | [CASE-OBJECT](#case-object-schema)  |
+
+
+
+    ##### CASE OBJECT SCHEMA
+
+    ```
+    {
+        "_id": case_id,
+        "desc": desc,
+        "victims": victims,
+        "ofenders": ofenders,
+        "location": None,
+        "time": time,
+        "crime_files": files,
+        "crime_score": None,
+        "classified_ByUser": classified_ByUser,
+        "classified_model": None,
+        "faces_bymodel": [],
+        "Status": "Assigned",
+        "authority_assigned": authority_assigned[0]["_id"]
+    }
+    ```
+
+    </details>
+
 
     <details>
     <summary><code>POST</code> <code><b>/case-status</b></code> <code>(Update status of a case)</code></summary>
