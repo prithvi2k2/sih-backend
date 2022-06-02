@@ -31,7 +31,8 @@ Example endpoints to send requests:
 - [Admin api](#admin-api)
     - [Authentication and retrieval of data](#authentication-and-retrieval-of-data)
     - [Manage patrol](#manage-patrol)
-
+- [Working with WebSockets](#working-with-websockets-using-socketio)
+    - [SocketIO client events](#events)
 ------------------------------------------------------------------------------------------
 
 ## Citizens app api
@@ -203,7 +204,6 @@ Example endpoints to send requests:
         "classified_model": None,
         "faces_bymodel": [],
         "Status": "Assigned",
-        "wallet_addr": current_user["wallet_addr"],
         "authority_assigned": authority_assigned[0]["_id"]
     }
     ```
@@ -279,6 +279,48 @@ Example endpoints to send requests:
     > | `404`         | `{"message": "unable to find user"}` |
 
     </details>
+
+
+    <details>
+    <summary><code>POST</code> <code><b>/get-case-info</b></code> <code>(Returns details of a particular case)</code></summary>
+
+
+    ##### Request Parameters
+
+    > | name      |  required    | data type               | description                                                           |
+    > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
+    > | case_id     | YES     | string   | Obtained from /get-reports  |
+
+    ##### Responses
+
+    > | http code     | response                                                            |
+    > |---------------|---------------------------------------------------------------------|
+    > | `200`         | [CASE-OBJECT](#case-object-schema)  |
+
+
+
+    ##### CASE OBJECT SCHEMA
+
+    ```
+    {
+        "_id": case_id,
+        "desc": desc,
+        "victims": victims,
+        "ofenders": ofenders,
+        "location": None,
+        "time": time,
+        "crime_files": files,
+        "crime_score": None,
+        "classified_ByUser": classified_ByUser,
+        "classified_model": None,
+        "faces_bymodel": [],
+        "Status": "Assigned",
+        "authority_assigned": authority_assigned[0]["_id"]
+    }
+    ```
+
+    </details>
+
 
     <details>
     <summary><code>POST</code> <code><b>/case-status</b></code> <code>(Update status of a case)</code></summary>
@@ -425,5 +467,66 @@ Example endpoints to send requests:
     > | `404`     | `{"error":"PatrolID not found"}` |
     > | `400`     | `{"error": ERROR_MSG}`                   |
 
+
+    </details>
+
+------------------------------------------------------------------------------------------
+
+## Working with WebSockets using `Socket.IO`
+
+<div style="text-align: right">
+
+[Go to Contents <kbd>&uarr;</kbd>](#contents)
+</div>
+
+- Server-side has implementation of Socket.IO server API which is based and built on top of WebSocket Protocol
+- To establish and communicate properly via sockets from the client-side,
+   <br> it is recommended to <b>use Socket.IO client helper libraries/API </b>
+   <br> Example: [Socket.IO client API for JavaScript](https://socket.io/docs/v4/client-api/), [Socket.IO client for Dart](https://pub.dev/packages/socket_io_client) etc. 
+   <br> For more info and docs on Socket.IO, [click here](https://socket.io/)
+- To open a WebSocket connection with server from client, use the following urls to connect
+    - Admin - `https://secrep.herokuapp.com/admin` ; namespace - `/admin`
+    - Patrol - `https://secrep.herokuapp.com/patrol` ; namespace - `/patrol`
+    > NOTE : The above urls are entirely different from traditional http urls and can't be accessed directly like http urls, instead they are called Socket.IO [namespaces](https://socket.io/docs/v4/namespaces/)
+- Checkout basic [examples](https://github.com/prithvi2k2/sih-backend/tree/main/examples/sample-socket-clients)
+
+### Events
+Implement required events on the client-side documented below...
+- <b> Admin events </b>
+    
+    <details>
+    <summary>Emitting events to server</summary>
+    
+    - `Get_cases` - Fetch cases from DB
+    - `Get_patrols` - Fetch patrol(s) and their assigned cases from DB
+    > The above 2 events return static latest data from DB like http GET...
+    >  <br> Why not use `GET`? 
+    >  <br> If client already opened a socket connection, why not use socket communication
+
+    </details>
+
+    <details>
+    <summary>Listening to events from server</summary>
+
+    - `PatrolUpdate` - Receive real-time assignments/unassignments of cases to patrol
+    - `CaseUpdate` - Receive real-time updates whenever cases are added/removed/updated, doesn't matter if case is assigned or not, any CUD operation triggered will emit this event from server
+    - `static-cases` - In response to `Get_cases`, this event returns all `case_ids`
+    - `static-patrol` - In response to `Get_patrols`, this event returns all patrol documents
+
+    </details>
+
+- <b> Patrol events </b>
+    <details>
+    <summary>Emitting events to server</summary>
+    
+    - `Get_cases` - Fetch assigned cases from DB
+
+    </details>
+
+    <details>
+    <summary>Listening to events from server</summary>
+
+    - `CaseUpdate` - Receive real-time updates whenever cases are assigned/unassigned
+    - `static-cases` - In response to `Get_cases`, this event returns all assigned `case_ids`
 
     </details>

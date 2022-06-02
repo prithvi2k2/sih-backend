@@ -80,3 +80,23 @@ def case_status(current_authority):
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
         return make_response(jsonify(error=e), 401)
+
+
+@case.route("/get-case-info",  methods=['POST'])
+@token_required
+@API_required
+def get_case_info(current_user):
+    try:
+        data = dict(request.json)
+        case_id = data.get("case_id")
+
+        case_info = db.reports.find_one({"_id": case_id})
+        if not case_info:
+            return make_response(jsonify(case_found=False, case_info=None))
+        # del case_info['wallet_addr']
+
+        return make_response(jsonify(case_found=True, case_info=case_info), 200)
+
+    except Exception as e:
+        print(e,  e.__traceback__.tb_lineno)
+        return make_response(jsonify(uploaded="fail", file_id=None, error=e), 403)

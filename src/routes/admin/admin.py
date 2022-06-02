@@ -65,7 +65,7 @@ MANAGE PATROL
 @token_required
 def signup(_):
     try:
-        req = dict(request.json)
+        req= dict(request.json)
         PatrolID = req.get("PatrolID")
         location = req.get("location")
         pw = req.get("password")
