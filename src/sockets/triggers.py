@@ -36,7 +36,7 @@ def patrolUpdateCases():
     either cases `added/inserted` or `removed/deleted`
     '''
     changes = dict(request.json)
-    room = changes['id']
+    room = changes['_id']
     socket.emit('CaseUpdate', changes, namespace='/patrol', to=room)
     socket.emit('PatrolUpdate', changes, namespace='/admin')
     return make_response("success", 200)
