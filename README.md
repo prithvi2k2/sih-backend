@@ -2,14 +2,21 @@
 # API docs
 
 Clients need a valid API_Key to access the API, and also valid JsonWebTokens for
-validating api calls after login. So each request is expected to have following HEADERS:
+validating api calls after login. 
+
+So each HTTP request is expected to have following `HEADERS`:
 > ```json
 >  "X-API-Key" :  *API_KEY* (mandatory)
 >  "x-access-token" : JWT_Token (only required when logged in)
 >  "Content-Type" : "application/json"
 > ```
-
 * NOTE : JWT is required for authorization of requests only after login
+
+For SocketIO (if used) communication, the following `extraHeaders` are required:
+> ```json
+>  "x-access-token" : JWT_Token (mandatory)
+> ```
+
 
 
 ### Base API url : https://secrep.herokuapp.com/
@@ -488,7 +495,7 @@ Example endpoints to send requests:
     - Admin - `https://secrep.herokuapp.com/admin` ; namespace - `/admin`
     - Patrol - `https://secrep.herokuapp.com/patrol` ; namespace - `/patrol`
     > NOTE : The above urls are entirely different from traditional http urls and can't be accessed directly like http urls, instead they are called Socket.IO [namespaces](https://socket.io/docs/v4/namespaces/)
-- Checkout basic [examples](https://github.com/prithvi2k2/sih-backend/tree/main/examples/sample-socket-clients)
+- **Checkout basic [examples](https://github.com/prithvi2k2/sih-backend/tree/main/examples/sample-socket-clients)**
 
 ### Events
 Implement required events on the client-side documented below...
