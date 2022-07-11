@@ -161,7 +161,7 @@ Example endpoints to send requests:
     > | name      |  required    | data type               | description                                                           |
     > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
     > | desc     | YES     | string   | Detailed description of the case  |
-    > | location | YES     | string   | Location text |
+    > | location | YES     | string   | Location in text or latitude-longitude |
     > | time | YES | Datetime object | Approximate time |
     > | type | YES | string | Crime category; Type of crime |
     > | offenders | - | string |
@@ -176,6 +176,26 @@ Example endpoints to send requests:
 
     </details>
 
+
+    <details>
+    <summary><code>POST</code> <code><b>/emergency</b></code> <code>(Creates/Lodges an emergency situation)<b>EXPERIMENTAL</b></code></summary>
+
+    This will create a case consuming location of report and finding the nearest 4 authorities
+
+    ##### Request Parameters
+
+    > | name      |  required    | data type               | description                                                           |
+    > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
+    > | location | YES     | string   | Location in text or latitude-longitude |
+    ##### Responses
+
+    > | http code     |response      |
+    > |---------------|---------------|
+    > | `201`         |  `{"uploaded":"success", "user_cases":LIST_of_CaseIds, "authorities":LIST_of_NearestAuthorityIds}`  |
+    > | `404`         |  `{"error":"Cannot find the location specified!!"}`      |
+
+
+    </details>
 
     <details>
     <summary><code>POST</code> <code><b>/get-case-info</b></code> <code>(Returns details of a particular case)</code></summary>
@@ -517,7 +537,7 @@ Implement required events on the client-side documented below...
 
     - `PatrolUpdate` - Receive real-time assignments/unassignments of cases to patrol
     - `CaseUpdate` - Receive real-time updates whenever cases are added/removed/updated, doesn't matter if case is assigned or not, any CUD operation triggered will emit this event from server
-    - `static-cases` - In response to `Get_cases`, this event returns all `case_ids`
+    - `static-cases` - In response to `Get_cases`, this event returns all case objects
     - `static-patrol` - In response to `Get_patrols`, this event returns all patrol documents
 
     </details>
