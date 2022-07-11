@@ -2,14 +2,21 @@
 # API docs
 
 Clients need a valid API_Key to access the API, and also valid JsonWebTokens for
-validating api calls after login. So each request is expected to have following HEADERS:
+validating api calls after login. 
+
+So each HTTP request is expected to have following `HEADERS`:
 > ```json
 >  "X-API-Key" :  *API_KEY* (mandatory)
 >  "x-access-token" : JWT_Token (only required when logged in)
 >  "Content-Type" : "application/json"
 > ```
-
 * NOTE : JWT is required for authorization of requests only after login
+
+For SocketIO (if used) communication, the following `extraHeaders` are required:
+> ```json
+>  "x-access-token" : JWT_Token (mandatory)
+> ```
+
 
 
 ### Base API url : https://secrep.herokuapp.com/
@@ -154,7 +161,7 @@ Example endpoints to send requests:
     > | name      |  required    | data type               | description                                                           |
     > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
     > | desc     | YES     | string   | Detailed description of the case  |
-    > | location | YES     | string   | Location text |
+    > | location | YES     | string   | Location in text or latitude-longitude |
     > | time | YES | Datetime object | Approximate time |
     > | type | YES | string | Crime category; Type of crime |
     > | offenders | - | string |
@@ -169,6 +176,26 @@ Example endpoints to send requests:
 
     </details>
 
+
+    <details>
+    <summary><code>POST</code> <code><b>/emergency</b></code> <code>(Creates/Lodges an emergency situation)<b>EXPERIMENTAL</b></code></summary>
+
+    This will create a case consuming location of report and finding the nearest 4 authorities
+
+    ##### Request Parameters
+
+    > | name      |  required    | data type               | description                                                           |
+    > |-----------|--------------|-------------------------|-----------------------------------------------------------------------|
+    > | location | YES     | string   | Location in text or latitude-longitude |
+    ##### Responses
+
+    > | http code     |response      |
+    > |---------------|---------------|
+    > | `201`         |  `{"uploaded":"success", "user_cases":LIST_of_CaseIds, "authorities":LIST_of_NearestAuthorityIds}`  |
+    > | `404`         |  `{"error":"Cannot find the location specified!!"}`      |
+
+
+    </details>
 
     <details>
     <summary><code>POST</code> <code><b>/get-case-info</b></code> <code>(Returns details of a particular case)</code></summary>
@@ -488,7 +515,7 @@ Example endpoints to send requests:
     - Admin - `https://secrep.herokuapp.com/admin` ; namespace - `/admin`
     - Patrol - `https://secrep.herokuapp.com/patrol` ; namespace - `/patrol`
     > NOTE : The above urls are entirely different from traditional http urls and can't be accessed directly like http urls, instead they are called Socket.IO [namespaces](https://socket.io/docs/v4/namespaces/)
-- Checkout basic [examples](https://github.com/prithvi2k2/sih-backend/tree/main/examples/sample-socket-clients)
+- **Checkout basic [examples](https://github.com/prithvi2k2/sih-backend/tree/main/examples/sample-socket-clients)**
 
 ### Events
 Implement required events on the client-side documented below...
@@ -510,7 +537,7 @@ Implement required events on the client-side documented below...
 
     - `PatrolUpdate` - Receive real-time assignments/unassignments of cases to patrol
     - `CaseUpdate` - Receive real-time updates whenever cases are added/removed/updated, doesn't matter if case is assigned or not, any CUD operation triggered will emit this event from server
-    - `static-cases` - In response to `Get_cases`, this event returns all `case_ids`
+    - `static-cases` - In response to `Get_cases`, this event returns all case objects
     - `static-patrol` - In response to `Get_patrols`, this event returns all patrol documents
 
     </details>

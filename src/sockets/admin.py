@@ -51,8 +51,8 @@ def test_connect():
 @socket.on('Get_cases',  namespace='/admin')
 @token_required
 def handleMessage():
-    case_ids = [ids for ids in db.reports.find({}, {"_id" : 1})]
-    emit('static-cases', case_ids)
+    cases = [reports for reports in db.reports.find()]
+    emit('static-cases', cases)
 
 
 @socket.on('Get_patrols',  namespace='/admin')

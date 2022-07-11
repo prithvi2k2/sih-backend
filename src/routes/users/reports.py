@@ -169,6 +169,8 @@ def emergency(current_user):
         nearest_authorities = db.patrol.find(
             {"location": {"$near": location.__repr__()}}).limit(4)
 
+        authorityIds = [authority['_id'] for authority in nearest_authorities]
+
         crime_obj = {
             "_id": crime_id,
             "location": location.__repr__(),
@@ -176,7 +178,7 @@ def emergency(current_user):
             "Status": "Assigned",
             "wallet_addr": current_user["wallet_addr"],
             "nearest_authority": nearest_authorities[0]['_id'],
-            "nearest_authorities": [authority['_id'] for authority in nearest_authorities],
+            "nearest_authorities": authorityIds,
         }
 
         db.reports.insert_one(crime_obj)
@@ -186,14 +188,14 @@ def emergency(current_user):
         current_user["case_ids"].append(crime_id)
         db.users.update_one({"_id": current_user["_id"]}, {
             "$set": {"case_ids": current_user["case_ids"]}})
-
+        
         for authority in nearest_authorities:
             cases = authority['case_ids']
             cases.append(crime_id)
             db.patrol.update_one({"_id": authority['_id']}, {
                 "$set": {"case_ids": cases}})
 
-        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"]), 201)
+        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"], authorities=authorityIds), 201)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)
