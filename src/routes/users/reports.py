@@ -161,41 +161,42 @@ def emergency(current_user):
             return make_response(jsonify(error="No Location specified!!"), 401)
 
         location = loc.Location(location)
-        print(location.__repr__(),  "\n\n")
         if not location.__repr__():
             return make_response(jsonify(error="Cannot find the location specified!!"), 404)
 
-        # finding nearest 4 authorities
-        nearest_authorities = db.patrol.find(
+        # finding nearest 4 authorities, a dictionary obj
+        nearest_authoritiesObj = db.patrol.find(
             {"location": {"$near": location.__repr__()}}).limit(4)
-
-        authorityIds = [authority['_id'] for authority in nearest_authorities]
-
+        
+        nearest_authorityID = nearest_authoritiesObj[0]['_id']
+        nearest_authoritiesIds = [authority['_id'] for authority in nearest_authoritiesObj]
+        
         crime_obj = {
             "_id": crime_id,
             "location": location.__repr__(),
             "emergency": True,
             "Status": "Assigned",
             "wallet_addr": current_user["wallet_addr"],
-            "nearest_authority": nearest_authorities[0]['_id'],
-            "nearest_authorities": authorityIds,
+            "nearest_authority": nearest_authorityID,
+            "nearest_authorities": nearest_authoritiesIds
         }
-
+        
         db.reports.insert_one(crime_obj)
-        # print(files)
+        
         model.Model(crime_obj=crime_obj)
 
         current_user["case_ids"].append(crime_id)
         db.users.update_one({"_id": current_user["_id"]}, {
             "$set": {"case_ids": current_user["case_ids"]}})
         
-        for authority in nearest_authorities:
+        for authority in nearest_authoritiesObj:
             cases = authority['case_ids']
             cases.append(crime_id)
             db.patrol.update_one({"_id": authority['_id']}, {
                 "$set": {"case_ids": cases}})
 
-        return make_response(jsonify(uploaded="success", user_cases=current_user["case_ids"], authorities=authorityIds), 201)
+        return make_response(jsonify(nearest_authority= nearest_authorityID,
+                nearest_authorities=nearest_authoritiesIds), 201)
 
     except Exception as e:
         print(e,  e.__traceback__.tb_lineno)

@@ -191,7 +191,7 @@ Example endpoints to send requests:
 
     > | http code     |response      |
     > |---------------|---------------|
-    > | `201`         |  `{"uploaded":"success", "user_cases":LIST_of_CaseIds, "authorities":LIST_of_NearestAuthorityIds}`  |
+    > | `201`         |  `{"nearest_authority":NearestAuthorityID, "nearest_authorities":LIST_of_NearestAuthorityIds}`  |
     > | `404`         |  `{"error":"Cannot find the location specified!!"}`      |
 
 
